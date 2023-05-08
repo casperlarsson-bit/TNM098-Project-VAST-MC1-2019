@@ -1,0 +1,8 @@
+.region:hover {
+    fill: red !important;
+    cursor: pointer;
+}
+
+#svpMap {
+    background-color: orange;
+}

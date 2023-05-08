@@ -22,6 +22,7 @@ d3.csv("data/mc1-reports-data.csv",
 
     // Now I can use this dataset:
     function (data) {    
+        return
         data = data.sort((a, b) => d3.ascending(a.time, b.time))
         data = data.filter(d => d.location == 4)
         // Add X axis --> it is a time format
