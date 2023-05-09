@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TNM098 - Project</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/map.css">
 </head>
 
 <body>
@@ -16,13 +17,19 @@
 
     <!--<div id="line-chart"></div>-->
     
+    <div class="row">
+        <div class="column box-shadow" id="map-canvas"></div>
+        <div class="column box-shadow" id="lineplot-canvas"></div>
+    </div>
+
+    <div class="box-shadow" id="overview"></div>
 
 </body>
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 
 
-<!--<script src="js/linechart.js"></script>-->
+<script src="js/linechart.js"></script>
 <script src="js/map.js"></script>
 
 </html>

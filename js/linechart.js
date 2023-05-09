@@ -1,54 +1,70 @@
 // set the dimensions and margins of the graph
-var margin = { top: 10, right: 30, bottom: 30, left: 60 },
-    width = 1200 - margin.left - margin.right,
-    height = 800 - margin.top - margin.bottom
+const margin = { top: 10, right: 30, bottom: 30, left: 60 },
+    width = document.getElementById('lineplot-canvas').offsetWidth - margin.left - margin.right,
+    height = document.getElementById('lineplot-canvas').offsetHeight - margin.top - margin.bottom
 
 // append the svg object to the body of the page
-var svg = d3.select("#line-chart")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")")
+const svgChart = d3.select('#lineplot-canvas')
+    .append('svg')
+    .attr('width', width)
+    .attr('height', height + margin.top + margin.bottom)
+    .append('g')
+    .attr('transform',
+        'translate(' + margin.left + ',' + margin.top + ')')
 
-//Read the data
-d3.csv("data/mc1-reports-data.csv",
+function drawIndividualChart(yPosition, value, data) {
+    // Add X axis --> it is a time format
+    var x = d3.scaleTime()
+        .domain(d3.extent(data, function (d) { return d.time }))
+        .range([0, width])
+    svgChart.append('g')
+        .attr('transform', 'translate(0,' + yPosition + ')')
+        .call(d3.axisBottom(x))
 
-    // When reading the csv, perform time format
-    function (d) {
-        return { time: d3.timeParse('%Y-%m-%d %H:%M:%S')(d.time), value: d.sewer_and_water, location: d.location }
-    },
+    // Add Y axis
+    var y = d3.scaleLinear()
+        .domain([0, 10])
+        .range([yPosition, 0])
+    svgChart.append('g')
+        .call(d3.axisLeft(y))
 
-    // Now I can use this dataset:
-    function (data) {    
-        return
-        data = data.sort((a, b) => d3.ascending(a.time, b.time))
-        data = data.filter(d => d.location == 4)
-        // Add X axis --> it is a time format
-        var x = d3.scaleTime()
-            .domain(d3.extent(data, function (d) { return d.time }))
-            .range([0, width])
-        svg.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            .call(d3.axisBottom(x))
+    // Add the line
+    svgChart.append('path')
+        .datum(data)
+        .attr('fill', 'none')
+        .attr('stroke', 'steelblue')
+        .attr('stroke-width', 1.5)
+        .attr('d', d3.line()
+            .x(function (d) { return x(d.time) })
+            .y(function (d) { return y(d.shake_intensity) })
+        )
+}
 
-        // Add Y axis
-        var y = d3.scaleLinear()
-            .domain([0, d3.max(data, function (d) { return +d.value })])
-            .range([height, 0])
-        svg.append("g")
-            .call(d3.axisLeft(y))
+function drawCharts(regionID) {
+    svgChart.selectAll("*").remove()
+    //Read the data
+    d3.csv('data/mc1-reports-data.csv',
 
-        // Add the line
-        svg.append("path")
-            .datum(data)
-            .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 1.5)
-            .attr("d", d3.line()
-                .x(function (d) { return x(d.time) })
-                .y(function (d) { return y(d.value) })
-            )
+        // When reading the csv, perform time format
+        function (d) {
+            return {
+                time: d3.timeParse('%Y-%m-%d %H:%M:%S')(d.time),
+                sewer_and_water: d.sewer_and_water,
+                power: d.power,
+                roads_and_bridges: d.roads_and_bridges,
+                medical: d.medical,
+                buildings: d.buildings,
+                shake_intensity: d.shake_intensity,
+                location: d.location
+            }
+        },
 
-    })
+        // Now I can use this dataset:
+        function (data) {
+            const numCharts = 3.1
+            data = data.sort((a, b) => d3.ascending(a.time, b.time))
+            data = data.filter(d => d.location === regionID)
+
+            drawIndividualChart(height / 3, 1, data)
+        })
+}

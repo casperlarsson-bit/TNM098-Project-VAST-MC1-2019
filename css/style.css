@@ -1,8 +1,37 @@
-.region:hover {
-    fill: red !important;
-    cursor: pointer;
+* {
+    box-sizing: border-box;
 }
 
-#svpMap {
-    background-color: orange;
+body {
+    background-color: #f1f1f1;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+    float: left;
+    width: calc(50% - 5px);
+    padding: 10px;
+    height: 60vh;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#map-canvas {
+    margin-right: 10px;
+}
+
+#overview {
+    height: calc(100vh - (60vh + 3 * 10px));
+    margin-top: 10px;
+}
+
+.box-shadow {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
 }
