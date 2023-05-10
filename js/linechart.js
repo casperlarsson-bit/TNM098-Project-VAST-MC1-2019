@@ -12,9 +12,10 @@ const svgChart = d3.select('#lineplot-canvas')
     .attr('transform',
         'translate(' + margin.left + ',' + margin.top + ')')
 
-function drawIndividualChart(yPosition, value, data) {
+const numCharts = 3.1
+function drawIndividualChart(yPosition, data) {
     // Add X axis --> it is a time format
-    var x = d3.scaleTime()
+    const x = d3.scaleTime()
         .domain(d3.extent(data, function (d) { return d.time }))
         .range([0, width])
     svgChart.append('g')
@@ -22,9 +23,9 @@ function drawIndividualChart(yPosition, value, data) {
         .call(d3.axisBottom(x))
 
     // Add Y axis
-    var y = d3.scaleLinear()
+    const y = d3.scaleLinear()
         .domain([0, 10])
-        .range([yPosition, 0])
+        .range([yPosition, yPosition - height / numCharts])
     svgChart.append('g')
         .call(d3.axisLeft(y))
 
@@ -36,7 +37,7 @@ function drawIndividualChart(yPosition, value, data) {
         .attr('stroke-width', 1.5)
         .attr('d', d3.line()
             .x(function (d) { return x(d.time) })
-            .y(function (d) { return y(d.shake_intensity) })
+            .y(function (d) { return y(d.value) })
         )
 }
 
@@ -45,7 +46,7 @@ function drawCharts(regionID) {
     //Read the data
     d3.csv('data/mc1-reports-data.csv',
 
-        // When reading the csv, perform time format
+        // Format time, need to make a copy of the dataset?
         function (d) {
             return {
                 time: d3.timeParse('%Y-%m-%d %H:%M:%S')(d.time),
@@ -59,12 +60,19 @@ function drawCharts(regionID) {
             }
         },
 
-        // Now I can use this dataset:
         function (data) {
-            const numCharts = 3.1
             data = data.sort((a, b) => d3.ascending(a.time, b.time))
             data = data.filter(d => d.location === regionID)
 
-            drawIndividualChart(height / 3, 1, data)
+            const shakeData = data.map(d => { return { time: d.time, value: d.shake_intensity } })
+            const medicalData = data.map(d => { return { time: d.time, value: d.medical } })
+            const powerData = data.map(d => { return { time: d.time, value: d.power } })
+
+
+            drawIndividualChart(height / numCharts, shakeData)
+            drawIndividualChart(2 * height / numCharts + 10, medicalData)
+            drawIndividualChart(3 * height / numCharts + 20, powerData)
+
+
         })
 }
