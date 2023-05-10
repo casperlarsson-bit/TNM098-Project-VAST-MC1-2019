@@ -25,6 +25,15 @@ body {
     margin-right: 10px;
 }
 
+#control-panel {
+    border: 1px solid black;
+    border-radius: 10px;
+    height: calc(60vh - 20px);
+    margin-bottom: 10px;
+    width: 10%;
+    position: absolute;
+}
+
 #overview {
     height: calc(100vh - (60vh + 3 * 10px));
     margin-top: 10px;

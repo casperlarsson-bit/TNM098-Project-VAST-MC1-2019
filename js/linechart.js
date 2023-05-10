@@ -12,7 +12,7 @@ const svgChart = d3.select('#lineplot-canvas')
     .attr('transform',
         'translate(' + margin.left + ',' + margin.top + ')')
 
-const numCharts = 3.1
+const numCharts = 3.5
 function drawIndividualChart(yPosition, data) {
     // Add X axis --> it is a time format
     const x = d3.scaleTime()
@@ -41,38 +41,18 @@ function drawIndividualChart(yPosition, data) {
         )
 }
 
-function drawCharts(regionID) {
+function drawCharts(data, regionID) {
     svgChart.selectAll("*").remove()
-    //Read the data
-    d3.csv('data/mc1-reports-data.csv',
+    data = data.sort((a, b) => d3.ascending(a.time, b.time))
+    data = data.filter(d => d.location === regionID)
 
-        // Format time, need to make a copy of the dataset?
-        function (d) {
-            return {
-                time: d3.timeParse('%Y-%m-%d %H:%M:%S')(d.time),
-                sewer_and_water: d.sewer_and_water,
-                power: d.power,
-                roads_and_bridges: d.roads_and_bridges,
-                medical: d.medical,
-                buildings: d.buildings,
-                shake_intensity: d.shake_intensity,
-                location: d.location
-            }
-        },
+    const shakeData = data.map(d => { return { time: d.time, value: d.shake_intensity } })
+    const medicalData = data.map(d => { return { time: d.time, value: d.medical } })
+    const powerData = data.map(d => { return { time: d.time, value: d.power } })
 
-        function (data) {
-            data = data.sort((a, b) => d3.ascending(a.time, b.time))
-            data = data.filter(d => d.location === regionID)
+    const spacing = 30
 
-            const shakeData = data.map(d => { return { time: d.time, value: d.shake_intensity } })
-            const medicalData = data.map(d => { return { time: d.time, value: d.medical } })
-            const powerData = data.map(d => { return { time: d.time, value: d.power } })
-
-
-            drawIndividualChart(height / numCharts, shakeData)
-            drawIndividualChart(2 * height / numCharts + 10, medicalData)
-            drawIndividualChart(3 * height / numCharts + 20, powerData)
-
-
-        })
+    drawIndividualChart(height / numCharts, shakeData)
+    drawIndividualChart(2 * height / numCharts + spacing, medicalData)
+    drawIndividualChart(3 * height / numCharts + 2 * spacing, powerData)
 }

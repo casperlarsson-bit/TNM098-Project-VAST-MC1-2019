@@ -1,9 +1,10 @@
 .region:hover {
-    fill: red !important;
+    fill: lightblue !important;
     cursor: pointer;
 }
 
 #map-svg {
+    float: right;
 }
 
 text {

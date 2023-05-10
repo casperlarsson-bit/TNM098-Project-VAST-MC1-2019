@@ -10,18 +10,40 @@
     <link rel="stylesheet" href="css/map.css">
 </head>
 
-<body>  
+<body>
     <div class="row">
-        <div class="column box-shadow" id="map-canvas"></div>
+        <div class="column box-shadow" id="map-canvas">
+            <div id="control-panel">
+                <label for="start">Start time:</label>
+                <input type="datetime-local" id="start" value="2020-04-06T00:00" min="2020-04-06T00:00"
+                    max="2020-04-11T00:00">
+
+                <br /><label for="end">End time:</label><br />
+                <input type="datetime-local" id="end" value="2020-04-11T00:00" min="2020-04-06T00:00"
+                    max="2020-04-11T00:00">
+
+                <label for="category">Select category:</label>
+                <select id="category">
+                    <option value="">Shake intensity</option>
+                    <option value="">Sewer and water</option>
+                    <option value="">Power</option>
+                    <option value="">Roads and bridges</option>
+                    <option value="">Medical</option>
+                    <option value="">Buildings</option>
+                </select>
+            </div>
+        </div>
         <div class="column box-shadow" id="lineplot-canvas"></div>
     </div>
 
     <div class="box-shadow" id="overview"></div>
 </body>
 <script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 
-
+<script src="js/confidence.js"></script>
 <script src="js/linechart.js"></script>
 <script src="js/map.js"></script>
 
