@@ -53,18 +53,28 @@ function drawCharts(data, regionID) {
     const spacing = 30
 
     drawIndividualChart(height / numCharts, shakeData)
-    drawIndividualChart(2 * height / numCharts + spacing, medicalData)
-    drawIndividualChart(3 * height / numCharts + 2 * spacing, powerData)
+    //drawIndividualChart(2 * height / numCharts + spacing, medicalData)
+    //drawIndividualChart(3 * height / numCharts + 2 * spacing, powerData)
 
     const movingAverage = d3.nest()
         .key(d => d.location)
         .rollup(dataLocation => {
+            const time = dataLocation.map(d => d.time)
+
             const numAverages = 7
             const shake_intensity = dataLocation.map(d => d.shake_intensity)
-            
-            
-        })
-        .entries(data)
+            const average = []
+            for (let i = 1; i <= shake_intensity.length; ++i) {
+                const partArray = shake_intensity.slice(d3.max([i - numAverages, 0]), i)
+                average.push(d3.mean(partArray))
+            }
 
-    console.log(movingAverage[0])
+            return ({ time: time, movingAverage: average })
+        })
+        .entries(filteredData)
+
+    const test = filteredData.map((d, i) => { return { time: d.time, value: movingAverage[0].value.movingAverage[i] } })
+
+
+    drawIndividualChart(2 * height / numCharts + 1 * spacing, test)
 }
