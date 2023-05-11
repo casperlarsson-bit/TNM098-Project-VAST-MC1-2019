@@ -1,67 +1,167 @@
-function drawConfidence(data, regions) {
-    const margin = { top: 10, right: 30, bottom: 30, left: 90 },
-        width = 800 - margin.left - margin.right,
-        height = document.getElementById('overview').offsetHeight - margin.top - margin.bottom
+// Map color, change in the feature?
+// Example: https://d3-graph-gallery.com/graph/choropleth_basic.html
+// Colours: https://observablehq.com/@d3/color-schemes
+const colorScale = d3.scaleThreshold()
+    .domain(Array.from(Array(11).keys()))
+    .range(d3.schemeOrRd[9])
 
-    const svg = d3.select('#overview')
-        .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
-        .append('g')
-        .attr('transform',
-            'translate(' + margin.left + ',' + margin.top + ')')
+const marginC = { top: 10, right: 30, bottom: 30, left: 60 },
+    widthC = document.getElementById('overview').offsetWidth - marginC.left - marginC.right,
+    heightC = document.getElementById('overview').offsetHeight - marginC.top - marginC.bottom
+
+const svgC = d3.select('#overview')
+    .append('svg')
+    .attr('width', widthC + marginC.left + marginC.right)
+    .attr('height', heightC + marginC.top + marginC.bottom)
+    .append('g')
+    .attr('transform',
+        'translate(' + marginC.left + ',' + marginC.top + ')')
+
+function drawConfidence(data, regions, category) {
+    svgC.selectAll("*").remove()
 
     const sumstats = d3.nest()
         .key(d => d.properties.name)
         .rollup(d => {
             const filteredData = data.filter(i => i.location === d[0].id)
-            const standardDeviation = d3.deviation(filteredData, i => i.shake_intensity)
+            const standardDeviation = d3.deviation(filteredData, i => i[category])
             const confidence99 = 2.58 * standardDeviation / Math.sqrt(filteredData.length) // 2.58 comes from N(0,1) and 99% confidence interval
             const confidence95 = 1.96 * standardDeviation / Math.sqrt(filteredData.length) // 1.96 comes from N(0,1) and 95% confidence interval
             const confidence80 = 1.28 * standardDeviation / Math.sqrt(filteredData.length) // 1.28 comes from N(0,1) and 80% confidence interval
-            const mean = d3.mean(filteredData, i => i.shake_intensity)
+            const mean = d3.mean(filteredData, i => i[category])
 
-            return ({ id: d[0].id, mean: mean, std: standardDeviation, confidence95: confidence95, confidence80: confidence80, confidence99: confidence99 })
+            q1 = d3.quantile(filteredData.map(function (g) { return g[category] }).sort(d3.ascending), .25)
+            median = d3.quantile(filteredData.map(function (g) { return g[category] }).sort(d3.ascending), .5)
+            q3 = d3.quantile(filteredData.map(function (g) { return g[category] }).sort(d3.ascending), .75)
+            interQuantileRange = q3 - q1
+            min = q1 - 1.5 * interQuantileRange
+            max = q3 + 1.5 * interQuantileRange
+
+            return ({ id: d[0].id, mean: mean, std: standardDeviation, confidence95: confidence95, confidence80: confidence80, confidence99: confidence99, q1: q1, q3: q3, median: median, min: min, max: max })
         })
         .entries(regions.features)
-        .sort((a,b) => d3.ascending(a.value.mean, b.value.mean))
+        .sort((a, b) => d3.ascending(a.value.mean, b.value.mean))
 
     const regionNames = sumstats.map(d => d.key)
+    /*
+        const x = d3.scaleLinear()
+            .range([0, width])
+            .domain([0, 10])
+        svg.append('g')
+            .attr('transform', 'translate(0,' + height + ')')
+            .call(d3.axisBottom(x))
+    
+        const y = d3.scaleBand()
+            .range([height, 0])
+            .domain(regionNames)
+            .paddingInner(1)
+            .paddingOuter(.5)
+        svg.append('g')
+            .call(d3.axisLeft(y))
+    
+        // 80% confidence interval
+        svg.selectAll('vertLines')
+            .data(sumstats)
+            .enter()
+            .append('line')
+            .attr('x1', d => x(d.value.mean - d.value.confidence80))
+            .attr('x2', d => x(d.value.mean + d.value.confidence80))
+            .attr('y1', d => y(d.key))
+            .attr('y2', d => y(d.key))
+            .attr('stroke', 'black')
+            .style('stroke-width', 6)
+    
+        svg.selectAll('vertLines')
+            .data(sumstats)
+            .enter()
+            .append('line')
+            .attr('x1', d => x(d.value.mean - d.value.confidence99))
+            .attr('x2', d => x(d.value.mean + d.value.confidence99))
+            .attr('y1', d => y(d.key))
+            .attr('y2', d => y(d.key))
+            .attr('stroke', 'black')
+            .style('stroke-width', 4)
+    
+        svg.selectAll('vertLines')
+            .data(sumstats)
+            .enter()
+            .append('circle')
+            .attr('cx', d => x(d.value.mean))
+            .attr('cy', d => y(d.key))
+            .attr('r', 5)
+            .style('fill', d => colorScale(d.value.mean))
+    */
 
-    const x = d3.scaleLinear()
-        .range([0, width])
-        .domain([0, 10])
-    svg.append('g')
-        .attr('transform', 'translate(0,' + height + ')')
-        .call(d3.axisBottom(x))
-
-    const y = d3.scaleBand()
-        .range([height, 0])
+    const x = d3.scaleBand()
+        .range([0, widthC])
         .domain(regionNames)
         .paddingInner(1)
         .paddingOuter(.5)
-    svg.append('g')
+    svgC.append('g')
+        .attr('transform', 'translate(0,' + heightC + ')')
+        .call(d3.axisBottom(x))
+
+    const y = d3.scaleLinear()
+        .range([heightC, 0])
+        .domain([d3.min(sumstats, d => d.value.min) - 1, d3.max(sumstats, d => d.value.max)])
+    svgC.append('g')
         .call(d3.axisLeft(y))
 
-    svg.selectAll('vertLines')
-        .data(sumstats)
-        .enter()
-        .append('circle')
-        .attr('cx', d => x(d.value.mean))
-        .attr('cy', d => y(d.key))
-        .attr('r', 5)
-        .style('fill', 'red')
-
-    svg.selectAll('vertLines')
+    svgC.selectAll('vertLines')
         .data(sumstats)
         .enter()
         .append('line')
-        .attr('x1', d => x(d.value.mean - d.value.confidence95))
-        .attr('x2', d => x(d.value.mean + d.value.confidence95))
-        .attr('y1', d => y(d.key))
-        .attr('y2', d => y(d.key))
+        .attr('y1', d => y(d.value.min))
+        .attr('y2', d => y(d.value.max))
+        .attr('x1', d => x(d.key))
+        .attr('x2', d => x(d.key))
         .attr('stroke', 'black')
-        .style('stroke-width', 4)
+        .style('stroke-width', 1)
+
+    // rectangle for the main box
+    const boxWidth = 50
+    svgC.selectAll('boxes')
+        .data(sumstats)
+        .enter()
+        .append('rect')
+        .attr('x', function (d) { return (x(d.key) - boxWidth / 2) })
+        .attr('y', function (d) { return (y(d.value.q3)) })
+        .attr('height', function (d) { return Math.max(y(d.value.q1) - y(d.value.q3), (y(d.value.q3) - y(d.value.q1))) })
+        .attr('width', boxWidth)
+        .attr('stroke', 'black')
+        .attr('class', d => 'box region' + d.value.id)
+        .style('fill', d => colorScale(d.value.mean))
+        .style('opacity', 0.8)
+
+    d3.selectAll('.box')
+        .on('mouseover', d => {
+            d3.selectAll('.region' + d.value.id)
+                .style('fill', 'lightblue')
+        })
+        .on('mouseout', d => {
+            d3.selectAll('.region' + d.value.id)
+                .style('fill', d => {
+                    if (d.value) {
+                        const filteredData = data.filter(i => i.location === d.value.id)
+                        return colorScale(d3.mean(filteredData, i => i[category]))
+                    }
+
+                    const filteredData = data.filter(i => i.location === d.id)
+                    return colorScale(d3.mean(filteredData, i => i[category]))
+                })
+        })
+
+    // Show the median
+    svgC.selectAll('medianLines')
+        .data(sumstats)
+        .enter()
+        .append('line')
+        .attr('x1', function (d) { return (x(d.key) - boxWidth / 2) })
+        .attr('x2', function (d) { return (x(d.key) + boxWidth / 2) })
+        .attr('y1', function (d) { return (y(d.value.median)) })
+        .attr('y2', function (d) { return (y(d.value.median)) })
+        .attr('stroke', 'black')
+        .style('width', 80)
 }
 
 // Design https://clauswilke.com/dataviz/visualizing-uncertainty.html
