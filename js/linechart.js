@@ -44,15 +44,27 @@ function drawIndividualChart(yPosition, data) {
 function drawCharts(data, regionID) {
     svgChart.selectAll("*").remove()
     data = data.sort((a, b) => d3.ascending(a.time, b.time))
-    data = data.filter(d => d.location === regionID)
+    filteredData = data.filter(d => d.location === regionID)
 
-    const shakeData = data.map(d => { return { time: d.time, value: d.shake_intensity } })
-    const medicalData = data.map(d => { return { time: d.time, value: d.medical } })
-    const powerData = data.map(d => { return { time: d.time, value: d.power } })
+    const shakeData = filteredData.map(d => { return { time: d.time, value: d.shake_intensity } })
+    const medicalData = filteredData.map(d => { return { time: d.time, value: d.medical } })
+    const powerData = filteredData.map(d => { return { time: d.time, value: d.power } })
 
     const spacing = 30
 
     drawIndividualChart(height / numCharts, shakeData)
     drawIndividualChart(2 * height / numCharts + spacing, medicalData)
     drawIndividualChart(3 * height / numCharts + 2 * spacing, powerData)
+
+    const movingAverage = d3.nest()
+        .key(d => d.location)
+        .rollup(dataLocation => {
+            const numAverages = 7
+            const shake_intensity = dataLocation.map(d => d.shake_intensity)
+            
+            
+        })
+        .entries(data)
+
+    console.log(movingAverage[0])
 }
