@@ -24,3 +24,8 @@ text {
 #scale {
     float: right;
 }
+
+.tooltip {
+    position: relative;
+    width: 150px;
+}

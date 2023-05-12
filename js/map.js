@@ -39,21 +39,21 @@ function ready(error, data, regions) {
     const categories = d3.keys(data[0]).slice(1, -1)
 
     // Create a select element
-    const select = d3.select("#control-panel")
-        .append("select")
-        .on("change", update)
+    const select = d3.select('#control-panel')
+        .append('select')
+        .on('change', update)
 
     // Add the options:
     select.selectAll(null)
         .data(categories)
         .enter()
-        .append("option")
+        .append('option')
         .text(d => {
             return d.charAt(0).toUpperCase() + d.slice(1).replace(/_/g, ' ')
         })
 
     function update() {
-        svg.selectAll("*").remove()
+        svg.selectAll('*').remove()
         const category = this.value ? this.value.toLowerCase().replace(/ /g, '_') : categories[0]
 
         const enterData = svg.selectAll('g')
@@ -112,15 +112,15 @@ function ready(error, data, regions) {
             .attr('class', 'region-name')
 
         // Color code from https://gist.github.com/HarryStevens/6eb89487fc99ad016723b901cbd57fde
-        var colorData = [{ "color": colorScale(-1), "value": 0 }, { "color": colorScale(0), "value": 5 }, { "color": colorScale(1), "value": 10 }, { "color": colorScale(2), "value": 15 }, { "color": colorScale(3), "value": 20 }, { "color": colorScale(4), "value": 25 }, { "color": colorScale(5), "value": 30 }, { "color": colorScale(6), "value": 35 }, { "color": colorScale(7), "value": 40 }]
-        var extent = d3.extent(colorData, d => d.value);
-        const defs = svg.append("defs")
-        const linearGradient = defs.append("linearGradient").attr("id", "myGradient")
-        linearGradient.selectAll("stop")
+        const colorData = [{ 'color': colorScale(-1), 'value': 0 }, { 'color': colorScale(0), 'value': 5 }, { 'color': colorScale(1), 'value': 10 }, { 'color': colorScale(2), 'value': 15 }, { 'color': colorScale(3), 'value': 20 }, { 'color': colorScale(4), 'value': 25 }, { 'color': colorScale(5), 'value': 30 }, { 'color': colorScale(6), 'value': 35 }, { 'color': colorScale(7), 'value': 40 }]
+        const extent = d3.extent(colorData, d => d.value);
+        const defs = svg.append('defs')
+        const linearGradient = defs.append('linearGradient').attr('id', 'myGradient')
+        linearGradient.selectAll('stop')
             .data(colorData)
-            .enter().append("stop")
-            .attr("offset", d => ((d.value - extent[0]) / (extent[1] - extent[0]) * 100) + "%")
-            .attr("stop-color", d => d.color)
+            .enter().append('stop')
+            .attr('offset', d => ((d.value - extent[0]) / (extent[1] - extent[0]) * 100) + '%')
+            .attr('stop-color', d => d.color)
 
         // Colour scale explanation
         svg.append('rect')
@@ -144,27 +144,60 @@ function ready(error, data, regions) {
             .style('text-anchor', 'end')
             .text('High')
 
+        // Create a tooltip from https://d3-graph-gallery.com/graph/interactivity_tooltip.html
+        const Tooltip = d3.select('#map-canvas')
+            .append('div')
+            .style('opacity', 0)
+            .attr('class', 'tooltip')
+            .style('width', 100)
+            .style('background-color', 'white')
+            .style('border', 'solid')
+            .style('border-width', '2px')
+            .style('border-radius', '5px')
+            .style('padding', '5px')
+
+        const mouseover = (d) => {
+            d3.selectAll('.region' + d.id)
+                .style('fill', 'lightblue')
+
+            Tooltip.style('opacity', 1)
+        }
+
+        const mousemove = (d) => {
+            const filteredData = data.filter(i => i.location === d.id)
+            const mean = d3.mean(filteredData, i => i[category])
+
+            Tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2))
+                .style('left', (d3.event.pageX) + 'px')
+                .style('top', (d3.event.pageY - 20) + 'px')
+        }
+
+        const mouseleave = (d) => {
+            Tooltip.style('opacity', 0)
+        }
+
+        const mouseout = (d) => {
+            d3.selectAll('.region' + d.id)
+                .style('fill', d => {
+                    if (d.value) {
+                        const filteredData = data.filter(i => i.location === d.value.id)
+                        return colorScale(d3.mean(filteredData, i => i[category]))
+                    }
+
+                    const filteredData = data.filter(i => i.location === d.id)
+                    return colorScale(d3.mean(filteredData, i => i[category]))
+                })
+        }
+
 
         d3.selectAll('.region')
             .on('click', d => {
                 drawCharts(data, d.id.replace(/^0+/, ''))
             })
-            .on('mouseover', d => {
-                d3.selectAll('.region' + d.id)
-                    .style('fill', 'lightblue')
-            })
-            .on('mouseout', d => {
-                d3.selectAll('.region' + d.id)
-                    .style('fill', d => {
-                        if (d.value) {
-                            const filteredData = data.filter(i => i.location === d.value.id)
-                            return colorScale(d3.mean(filteredData, i => i[category]))
-                        }
-
-                        const filteredData = data.filter(i => i.location === d.id)
-                        return colorScale(d3.mean(filteredData, i => i[category]))
-                    })
-            })
+            .on('mouseover', mouseover)
+            .on('mouseout', mouseout)
+            .on('mousemove', mousemove)
+            .on('mouseleave', mouseleave)
     }
 
     update()
