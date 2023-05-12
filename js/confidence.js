@@ -43,54 +43,6 @@ function drawConfidence(data, regions, category) {
         .sort((a, b) => d3.ascending(a.value.mean, b.value.mean))
 
     const regionNames = sumstats.map(d => d.key)
-    /*
-        const x = d3.scaleLinear()
-            .range([0, width])
-            .domain([0, 10])
-        svg.append('g')
-            .attr('transform', 'translate(0,' + height + ')')
-            .call(d3.axisBottom(x))
-    
-        const y = d3.scaleBand()
-            .range([height, 0])
-            .domain(regionNames)
-            .paddingInner(1)
-            .paddingOuter(.5)
-        svg.append('g')
-            .call(d3.axisLeft(y))
-    
-        // 80% confidence interval
-        svg.selectAll('vertLines')
-            .data(sumstats)
-            .enter()
-            .append('line')
-            .attr('x1', d => x(d.value.mean - d.value.confidence80))
-            .attr('x2', d => x(d.value.mean + d.value.confidence80))
-            .attr('y1', d => y(d.key))
-            .attr('y2', d => y(d.key))
-            .attr('stroke', 'black')
-            .style('stroke-width', 6)
-    
-        svg.selectAll('vertLines')
-            .data(sumstats)
-            .enter()
-            .append('line')
-            .attr('x1', d => x(d.value.mean - d.value.confidence99))
-            .attr('x2', d => x(d.value.mean + d.value.confidence99))
-            .attr('y1', d => y(d.key))
-            .attr('y2', d => y(d.key))
-            .attr('stroke', 'black')
-            .style('stroke-width', 4)
-    
-        svg.selectAll('vertLines')
-            .data(sumstats)
-            .enter()
-            .append('circle')
-            .attr('cx', d => x(d.value.mean))
-            .attr('cy', d => y(d.key))
-            .attr('r', 5)
-            .style('fill', d => colorScale(d.value.mean))
-    */
 
     const x = d3.scaleBand()
         .range([0, widthC])
@@ -134,6 +86,9 @@ function drawConfidence(data, regions, category) {
         .style('opacity', 0.8)
 
     d3.selectAll('.box')
+        .on('click', d => {
+            drawCharts(data, d.value.id.replace(/^0+/, ''))
+        })
         .on('mouseover', d => {
             d3.selectAll('.region' + d.value.id)
                 .style('fill', 'lightblue')

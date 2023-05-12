@@ -39,7 +39,7 @@ function ready(error, data, regions) {
     const categories = d3.keys(data[0]).slice(1, -1)
 
     // Create a select element
-    var select = d3.select("#control-panel")
+    const select = d3.select("#control-panel")
         .append("select")
         .on("change", update)
 
@@ -48,14 +48,13 @@ function ready(error, data, regions) {
         .data(categories)
         .enter()
         .append("option")
-        .text(function (d) {
-            return d
+        .text(d => {
+            return d.charAt(0).toUpperCase() + d.slice(1).replace(/_/g, ' ')
         })
 
     function update() {
         svg.selectAll("*").remove()
-        const category = this.value ? this.value : categories[0]
-        //console.log(category)
+        const category = this.value ? this.value.toLowerCase().replace(/ /g, '_') : categories[0]
 
         const enterData = svg.selectAll('g')
             .data(regions.features)
@@ -111,6 +110,40 @@ function ready(error, data, regions) {
             })
             .text(d => d.id.replace(/^0+/, '') + ' ' + d.properties.name)
             .attr('class', 'region-name')
+
+        // Color code from https://gist.github.com/HarryStevens/6eb89487fc99ad016723b901cbd57fde
+        var colorData = [{ "color": colorScale(-1), "value": 0 }, { "color": colorScale(0), "value": 5 }, { "color": colorScale(1), "value": 10 }, { "color": colorScale(2), "value": 15 }, { "color": colorScale(3), "value": 20 }, { "color": colorScale(4), "value": 25 }, { "color": colorScale(5), "value": 30 }, { "color": colorScale(6), "value": 35 }, { "color": colorScale(7), "value": 40 }]
+        var extent = d3.extent(colorData, d => d.value);
+        const defs = svg.append("defs")
+        const linearGradient = defs.append("linearGradient").attr("id", "myGradient")
+        linearGradient.selectAll("stop")
+            .data(colorData)
+            .enter().append("stop")
+            .attr("offset", d => ((d.value - extent[0]) / (extent[1] - extent[0]) * 100) + "%")
+            .attr("stop-color", d => d.color)
+
+        // Colour scale explanation
+        svg.append('rect')
+            .attr('x', 20)
+            .attr('y', 400)
+            .attr('height', 40)
+            .attr('width', 180)
+            .attr('id', 'scale')
+            .style('fill', 'url(#myGradient')
+
+        svg.append('g')
+            .append('text')
+            .attr('dx', 20)
+            .attr('dy', 400 - 5)
+            .text('Low')
+
+        svg.append('g')
+            .append('text')
+            .attr('dx', 200)
+            .attr('dy', 400 - 5)
+            .style('text-anchor', 'end')
+            .text('High')
+
 
         d3.selectAll('.region')
             .on('click', d => {
