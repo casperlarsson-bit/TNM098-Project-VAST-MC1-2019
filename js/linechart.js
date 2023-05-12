@@ -13,7 +13,7 @@ const svgChart = d3.select('#lineplot-canvas')
         'translate(' + margin.left + ',' + margin.top + ')')
 
 const numCharts = 3.5
-function drawIndividualChart(yPosition, data) {
+function drawIndividualChart(yPosition, data, color) {
     // Add X axis --> it is a time format
     const x = d3.scaleTime()
         .domain(d3.extent(data, function (d) { return d.time }))
@@ -33,28 +33,27 @@ function drawIndividualChart(yPosition, data) {
     svgChart.append('path')
         .datum(data)
         .attr('fill', 'none')
-        .attr('stroke', 'steelblue')
-        .attr('stroke-width', 1.5)
+        .attr('stroke', color)
+        .attr('stroke-width', 0.5)
         .attr('d', d3.line()
             .x(function (d) { return x(d.time) })
             .y(function (d) { return y(d.value) })
         )
 }
 
-function drawCharts(data, regionID) {
+function drawCharts(data, regionID, category) {
     svgChart.selectAll("*").remove()
     data = data.sort((a, b) => d3.ascending(a.time, b.time))
     filteredData = data.filter(d => d.location === regionID)
 
     const shakeData = filteredData.map(d => { return { time: d.time, value: d.shake_intensity } })
-    const medicalData = filteredData.map(d => { return { time: d.time, value: d.medical } })
+    const chosenData = filteredData.map(d => { return { time: d.time, value: d[category] } })
     const powerData = filteredData.map(d => { return { time: d.time, value: d.power } })
 
     const spacing = 30
 
-    drawIndividualChart(height / numCharts, shakeData)
-    //drawIndividualChart(2 * height / numCharts + spacing, medicalData)
-    //drawIndividualChart(3 * height / numCharts + 2 * spacing, powerData)
+    drawIndividualChart(height / numCharts, shakeData, 'steelblue')
+    drawIndividualChart(3 * height / numCharts + 2 * spacing, chosenData, 'steelblue')
 
     const movingAverage = d3.nest()
         .key(d => d.location)
@@ -76,5 +75,5 @@ function drawCharts(data, regionID) {
     const test = filteredData.map((d, i) => { return { time: d.time, value: movingAverage[0].value.movingAverage[i] } })
 
 
-    drawIndividualChart(2 * height / numCharts + 1 * spacing, test)
+    drawIndividualChart(2 * height / numCharts + 1 * spacing, test, 'black')
 }

@@ -37,10 +37,12 @@ function ready(error, data, regions) {
     if (error) throw error
 
     const categories = d3.keys(data[0]).slice(1, -1)
+    const inputParseDate = d3.timeParse('%Y-%m-%dT%H:%M')
 
     // Create a select element
     const select = d3.select('#control-panel')
         .append('select')
+        .attr('id', 'select-category')
         .on('change', update)
 
     // Add the options:
@@ -54,7 +56,12 @@ function ready(error, data, regions) {
 
     function update() {
         svg.selectAll('*').remove()
-        const category = this.value ? this.value.toLowerCase().replace(/ /g, '_') : categories[0]
+        d3.selectAll('.tooltip').remove()
+        const category = document.getElementById('select-category').value.toLowerCase().replace(/ /g, '_')
+        const startDate = inputParseDate(document.getElementById('start').value)
+        const endDate = inputParseDate(document.getElementById('end').value)
+
+        //data = data.filter(d => d.time >= startDate && d.time <= endDate)
 
         const enterData = svg.selectAll('g')
             .data(regions.features)
@@ -65,6 +72,7 @@ function ready(error, data, regions) {
             .attr('class', d => 'region region' + d.id)
             .style('fill', d => {
                 const filteredData = data.filter(i => i.location === d.id)
+                //console.log(d.id + ' ' + filteredData.length)
                 return colorScale(d3.mean(filteredData, i => i[category]))
             })
 
@@ -130,13 +138,11 @@ function ready(error, data, regions) {
             .attr('width', 180)
             .attr('id', 'scale')
             .style('fill', 'url(#myGradient')
-
         svg.append('g')
             .append('text')
             .attr('dx', 20)
             .attr('dy', 400 - 5)
             .text('Low')
-
         svg.append('g')
             .append('text')
             .attr('dx', 200)
@@ -192,13 +198,16 @@ function ready(error, data, regions) {
 
         d3.selectAll('.region')
             .on('click', d => {
-                drawCharts(data, d.id.replace(/^0+/, ''))
+                drawCharts(data, d.id.replace(/^0+/, ''), category)
             })
             .on('mouseover', mouseover)
             .on('mouseout', mouseout)
             .on('mousemove', mousemove)
             .on('mouseleave', mouseleave)
     }
+
+    document.getElementById('start').addEventListener('change', () => update())
+    document.getElementById('end').addEventListener('change', () => update())
 
     update()
 }
