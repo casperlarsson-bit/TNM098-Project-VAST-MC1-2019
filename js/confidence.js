@@ -1,3 +1,27 @@
+// sort array ascending
+const asc = arr => arr.sort((a, b) => a - b);
+const sum = arr => arr.reduce((a, b) => a + b, 0);
+const mean = arr => sum(arr) / arr.length;
+
+// sample standard deviation
+const std = (arr) => {
+    const mu = mean(arr);
+    const diffArr = arr.map(a => (a - mu) ** 2);
+    return Math.sqrt(sum(diffArr) / (arr.length - 1));
+};
+
+const quantile = (arr, q) => {
+    const sorted = asc(arr);
+    const pos = (sorted.length - 1) * q;
+    const base = Math.floor(pos);
+    const rest = pos - base;
+    if (sorted[base + 1] !== undefined) {
+        return parseFloat(sorted[base] + rest * (sorted[base + 1] - sorted[base]));
+    } else {
+        return parseFloat(sorted[base]);
+    }
+};
+
 // Map color, change in the feature?
 // Example: https://d3-graph-gallery.com/graph/choropleth_basic.html
 // Colours: https://observablehq.com/@d3/color-schemes
@@ -32,32 +56,39 @@ function drawConfidence(data, regions, category) {
             const currentMin = filteredData.length > 0 ? d3.min(filteredData, i => parseFloat(i[category])) : 0
             const currentMax = filteredData.length > 0 ? d3.max(filteredData, i => parseFloat(i[category])) : 0
 
-            q1 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .25)
-            median = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .50)
-            q3 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .75)
-            interQuantileRange = q3 - q1
-            min = Math.max(currentMin, q1 - 1.5 * interQuantileRange)
-            max = currentMax //Math.min(currentMax, q3 + 1.5 * interQuantileRange)
+            //let q1 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .25)
+            //const median = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .50)
+            //let q3 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .75)
 
-            let str = ''
-            if (filteredData[0].location == 3) {
-                filteredData.map(g => {
-                    if (g[category] == '') {
-                        //str += '0,'
+            /*let q1 = d3.quantile(filteredData.sort((a, b) => d3.ascending(a[category], b[category])), 0.25, g => g[category])
+            const median = d3.median(filteredData.sort((a, b) => d3.ascending(a[category], b[category])), g => g[category])
+            let q3 = d3.quantile(filteredData.sort((a, b) => d3.ascending(a[category], b[category])), 0.75, g => g[category])
+            */
 
-                    }
-                    else {
-                        str += g[category] + ','
-                    }
-                })
+            const sortedFilteredData = filteredData.map(g => g[category])
+                //.filter(g => g !== null && !isNaN(g))
+                .sort(d3.ascending)
 
-                console.log(str)
-                console.log(filteredData.length)
-            }
-            
-            //console.log(2 * confidence95.toFixed(2))
 
-            return ({ id: d[0].id, mean: mean, std: standardDeviation, confidence95: confidence95, confidence80: confidence80, confidence99: confidence99, q1: q1, q3: q3, median: median, min: min, max: max })
+            let q1 = d3.quantile(sortedFilteredData, 0.25)
+            const median = quantile(sortedFilteredData, 0.5) //d3.median(sortedFilteredData) //d3.quantile(sortedFilteredData, 0.50)
+            let q3 = d3.quantile(sortedFilteredData, 0.75)
+
+            q1 = quantile(sortedFilteredData, 0.25)
+            q3 = quantile(sortedFilteredData, 0.75)
+
+            /*if (q1 > q3) {
+                const temp = q1
+                q1 = q3
+                q3 = temp
+            }*/
+
+            const interQuantileRange = q3 - q1
+            const min = Math.max(currentMin, q1 - 1.5 * interQuantileRange)
+            const max = Math.min(currentMax, q3 + 1.5 * interQuantileRange)
+            const outliers = filteredData.filter(g => g[category] < min || g[category] > max)
+
+            return ({ id: d[0].id, mean: mean, std: standardDeviation, confidence95: confidence95, confidence80: confidence80, confidence99: confidence99, q1: q1, q3: q3, median: median, min: min, max: max, outliers: outliers })
         })
         .entries(regions.features)
         .sort((a, b) => d3.ascending(a.value.mean, b.value.mean))
@@ -98,7 +129,7 @@ function drawConfidence(data, regions, category) {
         .append('rect')
         .attr('x', d => x(d.key) - boxWidth / 2)
         .attr('y', d => y(d.value.q3 ? d.value.q3 : 0))
-        .attr('height', d => Math.max(y(d.value.q1) - y(d.value.q3), (y(d.value.q3) - y(d.value.q1))) ? Math.max(y(d.value.q1) - y(d.value.q3), (y(d.value.q3) - y(d.value.q1))) : 0)
+        .attr('height', d => Math.abs(y(d.value.q1) - y(d.value.q3)) ? Math.abs(y(d.value.q1) - y(d.value.q3)) : 0)
         .attr('width', boxWidth)
         .attr('stroke', 'black')
         .attr('class', d => 'box region' + d.value.id)
@@ -108,6 +139,7 @@ function drawConfidence(data, regions, category) {
     d3.selectAll('.box')
         .on('click', d => {
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
+            console.log(d)
         })
         .on('mouseover', d => {
             d3.selectAll('.region' + d.value.id)
