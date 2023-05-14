@@ -65,17 +65,18 @@ function drawConfidence(data, regions, category) {
             let q3 = d3.quantile(filteredData.sort((a, b) => d3.ascending(a[category], b[category])), 0.75, g => g[category])
             */
 
-            const sortedFilteredData = filteredData.map(g => g[category])
+            const sortedFilteredData = filteredData.map(g => parseFloat(g[category]))
                 //.filter(g => g !== null && !isNaN(g))
+                .map(g => isNaN(g) ? 0 : g)
                 .sort(d3.ascending)
-
+            //console.log(sortedFilteredData)
 
             let q1 = d3.quantile(sortedFilteredData, 0.25)
             const median = quantile(sortedFilteredData, 0.5) //d3.median(sortedFilteredData) //d3.quantile(sortedFilteredData, 0.50)
             let q3 = d3.quantile(sortedFilteredData, 0.75)
 
-            q1 = quantile(sortedFilteredData, 0.25)
-            q3 = quantile(sortedFilteredData, 0.75)
+            //q1 = quantile(sortedFilteredData, 0.25)
+            //q3 = quantile(sortedFilteredData, 0.75)
 
             /*if (q1 > q3) {
                 const temp = q1
