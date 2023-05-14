@@ -38,30 +38,30 @@ function ready(error, data, regions) {
 
     const categories = d3.keys(data[0]).slice(1, -1)
     const inputParseDate = d3.timeParse('%Y-%m-%dT%H:%M')
+    const minTime = d3.min(data, d => d.time)
+    const maxTime = d3.max(data, d => d.time)
+    const originalData = data
 
-    // Create a select element
-    const select = d3.select('#control-panel')
-        .append('select')
-        .attr('id', 'select-category')
-        .on('change', update)
-
-    // Add the options:
-    select.selectAll(null)
-        .data(categories)
-        .enter()
-        .append('option')
-        .text(d => {
-            return d.charAt(0).toUpperCase() + d.slice(1).replace(/_/g, ' ')
-        })
-
-    function update() {
+    //function update() {
+    window.update = function () {
         svg.selectAll('*').remove()
         d3.selectAll('.tooltip').remove()
         const category = document.getElementById('select-category').value.toLowerCase().replace(/ /g, '_')
-        const startDate = inputParseDate(document.getElementById('start').value)
-        const endDate = inputParseDate(document.getElementById('end').value)
+        data = originalData
+        const lowerElementStyle = getComputedStyle(document.querySelector('.handle--w'))
+        const upperElementStyle = getComputedStyle(document.querySelector('.handle--e'))
+        const offset = parseInt(lowerElementStyle.width) ? parseInt(lowerElementStyle.width) / 2 : 0
 
-        //data = data.filter(d => d.time >= startDate && d.time <= endDate)
+        const lowerTimeRatio = (parseInt(lowerElementStyle.x) + offset) / widthHistogram
+        const upperTimeRatio = (parseInt(upperElementStyle.x) + offset) / widthHistogram
+
+        const lowerTimeMinutes = lowerTimeRatio * d3.timeMinute.count(minTime, maxTime)
+        const upperTimeMinutes = upperTimeRatio * d3.timeMinute.count(minTime, maxTime)
+
+        const lowerTime = d3.timeMinute.offset(minTime, lowerTimeMinutes)
+        const upperTime = parseInt(upperElementStyle.x) !== 0 ? d3.timeMinute.offset(minTime, upperTimeMinutes) : maxTime
+
+        data = data.filter(d => d.time >= lowerTime && d.time <= upperTime)
 
         const enterData = svg.selectAll('g')
             .data(regions.features)
@@ -73,9 +73,10 @@ function ready(error, data, regions) {
             .style('fill', d => {
                 const filteredData = data.filter(i => i.location === d.id)
                 //console.log(d.id + ' ' + filteredData.length)
-                return colorScale(d3.mean(filteredData, i => i[category]))
+                return colorScale(filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0)
             })
 
+        // Disabled for now because of error, data might be empty for some regions
         drawConfidence(data, regions, category)
 
         // Add text and position them over the area
@@ -171,7 +172,7 @@ function ready(error, data, regions) {
 
         const mousemove = (d) => {
             const filteredData = data.filter(i => i.location === d.id)
-            const mean = d3.mean(filteredData, i => i[category])
+            const mean = filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0
 
             Tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2))
                 .style('left', (d3.event.pageX) + 'px')
@@ -187,11 +188,11 @@ function ready(error, data, regions) {
                 .style('fill', d => {
                     if (d.value) {
                         const filteredData = data.filter(i => i.location === d.value.id)
-                        return colorScale(d3.mean(filteredData, i => i[category]))
+                        return colorScale(filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0)
                     }
 
                     const filteredData = data.filter(i => i.location === d.id)
-                    return colorScale(d3.mean(filteredData, i => i[category]))
+                    return colorScale(filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0)
                 })
         }
 
@@ -206,6 +207,22 @@ function ready(error, data, regions) {
             .on('mouseleave', mouseleave)
     }
 
+    // Create a select element
+    const select = d3.select('#select-attribute')
+        .append('select')
+        .attr('id', 'select-category')
+        .on('change', update)
+
+    // Add the options:
+    select.selectAll(null)
+        .data(categories)
+        .enter()
+        .append('option')
+        .text(d => {
+            return d.charAt(0).toUpperCase() + d.slice(1).replace(/_/g, ' ')
+        })
+
+    // Temp dates
     document.getElementById('start').addEventListener('change', () => update())
     document.getElementById('end').addEventListener('change', () => update())
 

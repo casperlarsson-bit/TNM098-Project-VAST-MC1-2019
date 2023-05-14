@@ -5,7 +5,7 @@ const colorScale = d3.scaleThreshold()
     .domain(Array.from(Array(11).keys()))
     .range(d3.schemeOrRd[9])
 
-const marginC = { top: 10, right: 30, bottom: 30, left: 60 },
+const marginC = { top: 10, right: 30, bottom: 20, left: 60 },
     widthC = document.getElementById('overview').offsetWidth - marginC.left - marginC.right,
     heightC = document.getElementById('overview').offsetHeight - marginC.top - marginC.bottom
 
@@ -23,19 +23,39 @@ function drawConfidence(data, regions, category) {
     const sumstats = d3.nest()
         .key(d => d.properties.name)
         .rollup(d => {
-            const filteredData = data.filter(i => i.location === d[0].id)
+            const filteredData = data.filter(i => i.location === d[0].id) //.filter(i => i[category] != '')
             const standardDeviation = d3.deviation(filteredData, i => i[category])
             const confidence99 = 2.58 * standardDeviation / Math.sqrt(filteredData.length) // 2.58 comes from N(0,1) and 99% confidence interval
             const confidence95 = 1.96 * standardDeviation / Math.sqrt(filteredData.length) // 1.96 comes from N(0,1) and 95% confidence interval
             const confidence80 = 1.28 * standardDeviation / Math.sqrt(filteredData.length) // 1.28 comes from N(0,1) and 80% confidence interval
-            const mean = d3.mean(filteredData, i => i[category])
+            const mean = filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0
+            const currentMin = filteredData.length > 0 ? d3.min(filteredData, i => parseFloat(i[category])) : 0
+            const currentMax = filteredData.length > 0 ? d3.max(filteredData, i => parseFloat(i[category])) : 0
 
-            q1 = d3.quantile(filteredData.map(function (g) { return g[category] }).sort(d3.ascending), .25)
-            median = d3.quantile(filteredData.map(function (g) { return g[category] }).sort(d3.ascending), .5)
-            q3 = d3.quantile(filteredData.map(function (g) { return g[category] }).sort(d3.ascending), .75)
+            q1 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .25)
+            median = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .50)
+            q3 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .75)
             interQuantileRange = q3 - q1
-            min = q1 - 1.5 * interQuantileRange
-            max = q3 + 1.5 * interQuantileRange
+            min = Math.max(currentMin, q1 - 1.5 * interQuantileRange)
+            max = currentMax //Math.min(currentMax, q3 + 1.5 * interQuantileRange)
+
+            let str = ''
+            if (filteredData[0].location == 3) {
+                filteredData.map(g => {
+                    if (g[category] == '') {
+                        //str += '0,'
+
+                    }
+                    else {
+                        str += g[category] + ','
+                    }
+                })
+
+                console.log(str)
+                console.log(filteredData.length)
+            }
+            
+            //console.log(2 * confidence95.toFixed(2))
 
             return ({ id: d[0].id, mean: mean, std: standardDeviation, confidence95: confidence95, confidence80: confidence80, confidence99: confidence99, q1: q1, q3: q3, median: median, min: min, max: max })
         })
@@ -55,7 +75,7 @@ function drawConfidence(data, regions, category) {
 
     const y = d3.scaleLinear()
         .range([heightC, 0])
-        .domain([d3.min(sumstats, d => d.value.min) - 1, d3.max(sumstats, d => d.value.max)])
+        .domain([d3.min(sumstats, d => d.value.min) - 1, d3.max(sumstats, d => d.value.max) + 1])
     svgC.append('g')
         .call(d3.axisLeft(y))
 
@@ -63,22 +83,22 @@ function drawConfidence(data, regions, category) {
         .data(sumstats)
         .enter()
         .append('line')
-        .attr('y1', d => y(d.value.min))
-        .attr('y2', d => y(d.value.max))
+        .attr('y1', d => y(d.value.min ? d.value.min : 0))
+        .attr('y2', d => y(d.value.max ? d.value.max : 0))
         .attr('x1', d => x(d.key))
         .attr('x2', d => x(d.key))
         .attr('stroke', 'black')
         .style('stroke-width', 1)
 
-    // rectangle for the main box
+    // Rectangle for the main box
     const boxWidth = 50
     svgC.selectAll('boxes')
         .data(sumstats)
         .enter()
         .append('rect')
-        .attr('x', function (d) { return (x(d.key) - boxWidth / 2) })
-        .attr('y', function (d) { return (y(d.value.q3)) })
-        .attr('height', function (d) { return Math.max(y(d.value.q1) - y(d.value.q3), (y(d.value.q3) - y(d.value.q1))) })
+        .attr('x', d => x(d.key) - boxWidth / 2)
+        .attr('y', d => y(d.value.q3 ? d.value.q3 : 0))
+        .attr('height', d => Math.max(y(d.value.q1) - y(d.value.q3), (y(d.value.q3) - y(d.value.q1))) ? Math.max(y(d.value.q1) - y(d.value.q3), (y(d.value.q3) - y(d.value.q1))) : 0)
         .attr('width', boxWidth)
         .attr('stroke', 'black')
         .attr('class', d => 'box region' + d.value.id)
@@ -111,10 +131,10 @@ function drawConfidence(data, regions, category) {
         .data(sumstats)
         .enter()
         .append('line')
-        .attr('x1', function (d) { return (x(d.key) - boxWidth / 2) })
-        .attr('x2', function (d) { return (x(d.key) + boxWidth / 2) })
-        .attr('y1', function (d) { return (y(d.value.median)) })
-        .attr('y2', function (d) { return (y(d.value.median)) })
+        .attr('x1', d => (x(d.key) - boxWidth / 2))
+        .attr('x2', d => (x(d.key) + boxWidth / 2))
+        .attr('y1', d => y(d.value.median ? d.value.median : 0))
+        .attr('y2', d => y(d.value.median ? d.value.median : 0))
         .attr('stroke', 'black')
         .style('width', 80)
 }
