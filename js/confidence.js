@@ -44,7 +44,7 @@ function drawConfidence(data, regions, category) {
             const interQuantileRange = q3 - q1
             const min = Math.max(currentMin, q1 - 1.5 * interQuantileRange)
             const max = Math.min(currentMax, q3 + 1.5 * interQuantileRange)
-            const outliers = filteredData.filter(g => g[category] < min || g[category] > max)
+            const outliers = filteredData.filter(g => g[category] < min || g[category] > max) //.map(g => g[category])
 
             return ({ id: d[0].id, mean: mean, std: standardDeviation, confidence95: confidence95, confidence80: confidence80, confidence99: confidence99, q1: q1, q3: q3, median: median, min: min, max: max, outliers: outliers })
         })
@@ -97,7 +97,7 @@ function drawConfidence(data, regions, category) {
     d3.selectAll('.box')
         .on('click', d => {
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
-            console.log(d)
+            //console.log(d)
         })
         .on('mouseover', d => {
             d3.selectAll('.region' + d.value.id)
@@ -128,5 +128,21 @@ function drawConfidence(data, regions, category) {
         .attr('stroke', 'black')
         .style('width', 80)
 
-    // TODO Plot outliers
+
+
+    // Plot the outliers
+    const outliers = sumstats.map(d => {
+        return d.value.outliers
+    }).flat(1)
+
+    svgC.append('g')
+        .selectAll('dot')
+        .data(outliers)
+        .enter()
+        .append('circle')
+        .attr('cx', d => x(regions.features[d.location - 1].properties.name) + (Math.random() - 0.5) * 25)
+        .attr('cy', d => y(d[category]))
+        .attr('r', 2.5)
+        .style('fill', 'lightgray')
+        .style('opacity', 0.2)
 }

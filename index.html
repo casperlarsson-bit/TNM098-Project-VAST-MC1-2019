@@ -17,8 +17,14 @@
             <div id="control-panel">
                 <label for="category">Select category:</label>
                 <div id="select-attribute"></div>
-                <div id="time-range"></div>
+                <div id="map-type">
+                    <input id="intensity-map" type="radio" name="type-of-map" value="intensity" checked="checked" onchange="update()">
+                    <label for="intensity-map">Intensity</label><br />
+                    <input id="number-reports-map" type="radio" name="type-of-map" value="number" onchange="update()">
+                    <label for="number-reports-map">Num</label>
+                </div>
             </div>
+            <div id="time-range"></div>
         </div>
         <div class="column box-shadow" id="lineplot-canvas"></div>
     </div>

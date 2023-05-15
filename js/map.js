@@ -61,7 +61,7 @@ function ready(error, data, regions) {
         const lowerTime = d3.timeMinute.offset(minTime, lowerTimeMinutes)
         const upperTime = parseInt(upperElementStyle.x) !== 0 ? d3.timeMinute.offset(minTime, upperTimeMinutes) : maxTime
 
-        data = data.filter(d => d.time >= lowerTime && d.time <= upperTime)
+        data = data.filter(d => d.time > lowerTime && d.time < upperTime)
 
         const enterData = svg.selectAll('g')
             .data(regions.features)
@@ -168,19 +168,23 @@ function ready(error, data, regions) {
                 .style('fill', 'lightblue')
 
             Tooltip.style('opacity', 1)
+                .style('z-index', 10)
         }
 
         const mousemove = (d) => {
             const filteredData = data.filter(i => i.location === d.id)
             const mean = filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0
+            const numReports = filteredData.filter(g => g[category]).filter(g => g != '').length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+            //console.log(filteredData)
 
-            Tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2))
+            Tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2) + '<br />Number of reports:<br />' + numReports)
                 .style('left', (d3.event.pageX) + 'px')
                 .style('top', (d3.event.pageY - 20) + 'px')
         }
 
         const mouseleave = (d) => {
             Tooltip.style('opacity', 0)
+                .style('z-index', -1)
         }
 
         const mouseout = (d) => {
@@ -199,6 +203,8 @@ function ready(error, data, regions) {
 
         d3.selectAll('.region')
             .on('click', d => {
+                const filteredData = data.filter(i => i.location === d.id).map(g => parseFloat(g[category]))
+                //console.log(filteredData.sort(d3.ascending))
                 drawCharts(data, d.id.replace(/^0+/, ''), category)
             })
             .on('mouseover', mouseover)

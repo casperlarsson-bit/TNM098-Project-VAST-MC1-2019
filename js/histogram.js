@@ -1,9 +1,8 @@
 // Code from https://d3-graph-gallery.com/graph/histogram_basic.html
 // set the dimensions and margins of the graph
-// TODO Place at better place
 const marginHistogram = { top: 10, right: 30, bottom: 30, left: 40 },
-    widthHistogram = 1460 - marginHistogram.left - marginHistogram.right,
-    heightHistogram = 100 - marginHistogram.top - marginHistogram.bottom
+    widthHistogram = document.getElementById('time-range').offsetWidth - marginHistogram.left - marginHistogram.right,
+    heightHistogram = document.getElementById('time-range').offsetHeight - marginHistogram.top - marginHistogram.bottom
 
 // append the svg object to the body of the page
 const svgHistogram = d3.select('#time-range')
@@ -55,8 +54,8 @@ d3.csv('data/mc1-reports-data.csv',
         const y = d3.scaleSqrt()
             .range([heightHistogram, 0])
             .domain([0, d3.max(bins, d => d.length)])   // d3.hist has to be called before the Y axis obviously
-        svgHistogram.append('g')
-            .call(d3.axisLeft(y))
+        //svgHistogram.append('g')
+        //    .call(d3.axisLeft(y))
 
         // Append the bar rectangles to the svg element
         svgHistogram.selectAll('rect')

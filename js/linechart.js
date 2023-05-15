@@ -1,12 +1,12 @@
 // set the dimensions and margins of the graph
-const margin = { top: 10, right: 30, bottom: 30, left: 60 },
-    width = document.getElementById('lineplot-canvas').offsetWidth - margin.left - margin.right,
+const margin = { top: 10, right: 0, bottom: 30, left: 60 },
+    width = document.getElementById('lineplot-canvas').offsetWidth - margin.left - margin.right - 0.1 * document.getElementById('lineplot-canvas').offsetWidth,
     height = document.getElementById('lineplot-canvas').offsetHeight - margin.top - margin.bottom
 
 // append the svg object to the body of the page
 const svgChart = d3.select('#lineplot-canvas')
     .append('svg')
-    .attr('width', width)
+    .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
     .attr('transform',
@@ -17,7 +17,7 @@ function drawIndividualChart(yPosition, data, color) {
     // TODO Design
     // Add X axis --> it is a time format
     const x = d3.scaleTime()
-        .domain(d3.extent(data, function (d) { return d.time }))
+        .domain(d3.extent(data, d => d.time))
         .range([0, width])
     svgChart.append('g')
         .attr('transform', 'translate(0,' + yPosition + ')')
@@ -45,7 +45,7 @@ function drawIndividualChart(yPosition, data, color) {
 function drawCharts(data, regionID, category) {
     svgChart.selectAll("*").remove()
     data = data.sort((a, b) => d3.ascending(a.time, b.time))
-    filteredData = data.filter(d => d.location === regionID)
+    const filteredData = data.filter(d => d.location === regionID)
 
     const shakeData = filteredData.map(d => { return { time: d.time, value: d.shake_intensity } })
     const chosenData = filteredData.map(d => { return { time: d.time, value: d[category] } })
