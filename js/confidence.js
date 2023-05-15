@@ -33,7 +33,6 @@ function drawConfidence(data, regions, category) {
 
 
             const sortedFilteredData = filteredData.map(g => parseFloat(g[category]))
-                //.filter(g => g !== null && !isNaN(g))
                 .map(g => isNaN(g) ? 0 : g)
                 .sort(d3.ascending)
 
@@ -97,7 +96,6 @@ function drawConfidence(data, regions, category) {
     d3.selectAll('.box')
         .on('click', d => {
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
-            //console.log(d)
         })
         .on('mouseover', d => {
             d3.selectAll('.region' + d.value.id)

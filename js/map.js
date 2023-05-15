@@ -37,12 +37,10 @@ function ready(error, data, regions) {
     if (error) throw error
 
     const categories = d3.keys(data[0]).slice(1, -1)
-    const inputParseDate = d3.timeParse('%Y-%m-%dT%H:%M')
     const minTime = d3.min(data, d => d.time)
     const maxTime = d3.max(data, d => d.time)
     const originalData = data
 
-    //function update() {
     window.update = function () {
         svg.selectAll('*').remove()
         d3.selectAll('.tooltip').remove()
@@ -76,7 +74,6 @@ function ready(error, data, regions) {
                 return colorScale(filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0)
             })
 
-        // Disabled for now because of error, data might be empty for some regions
         drawConfidence(data, regions, category)
 
         // Add text and position them over the area
@@ -175,7 +172,6 @@ function ready(error, data, regions) {
             const filteredData = data.filter(i => i.location === d.id)
             const mean = filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0
             const numReports = filteredData.filter(g => g[category]).filter(g => g != '').length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-            //console.log(filteredData)
 
             Tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2) + '<br />Number of reports:<br />' + numReports)
                 .style('left', (d3.event.pageX) + 'px')
@@ -200,11 +196,8 @@ function ready(error, data, regions) {
                 })
         }
 
-
         d3.selectAll('.region')
             .on('click', d => {
-                const filteredData = data.filter(i => i.location === d.id).map(g => parseFloat(g[category]))
-                //console.log(filteredData.sort(d3.ascending))
                 drawCharts(data, d.id.replace(/^0+/, ''), category)
             })
             .on('mouseover', mouseover)
