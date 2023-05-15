@@ -1,28 +1,3 @@
-// sort array ascending
-const asc = arr => arr.sort((a, b) => a - b);
-const sum = arr => arr.reduce((a, b) => a + b, 0);
-const mean = arr => sum(arr) / arr.length;
-
-// sample standard deviation
-const std = (arr) => {
-    const mu = mean(arr);
-    const diffArr = arr.map(a => (a - mu) ** 2);
-    return Math.sqrt(sum(diffArr) / (arr.length - 1));
-};
-
-const quantile = (arr, q) => {
-    const sorted = asc(arr);
-    const pos = (sorted.length - 1) * q;
-    const base = Math.floor(pos);
-    const rest = pos - base;
-    if (sorted[base + 1] !== undefined) {
-        return parseFloat(sorted[base] + rest * (sorted[base + 1] - sorted[base]));
-    } else {
-        return parseFloat(sorted[base]);
-    }
-};
-
-// Map color, change in the feature?
 // Example: https://d3-graph-gallery.com/graph/choropleth_basic.html
 // Colours: https://observablehq.com/@d3/color-schemes
 const colorScale = d3.scaleThreshold()
@@ -47,7 +22,7 @@ function drawConfidence(data, regions, category) {
     const sumstats = d3.nest()
         .key(d => d.properties.name)
         .rollup(d => {
-            const filteredData = data.filter(i => i.location === d[0].id) //.filter(i => i[category] != '')
+            const filteredData = data.filter(i => i.location === d[0].id)
             const standardDeviation = d3.deviation(filteredData, i => i[category])
             const confidence99 = 2.58 * standardDeviation / Math.sqrt(filteredData.length) // 2.58 comes from N(0,1) and 99% confidence interval
             const confidence95 = 1.96 * standardDeviation / Math.sqrt(filteredData.length) // 1.96 comes from N(0,1) and 95% confidence interval
@@ -56,33 +31,15 @@ function drawConfidence(data, regions, category) {
             const currentMin = filteredData.length > 0 ? d3.min(filteredData, i => parseFloat(i[category])) : 0
             const currentMax = filteredData.length > 0 ? d3.max(filteredData, i => parseFloat(i[category])) : 0
 
-            //let q1 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .25)
-            //const median = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .50)
-            //let q3 = d3.quantile(filteredData.map(g => g[category]).sort(d3.ascending), .75)
-
-            /*let q1 = d3.quantile(filteredData.sort((a, b) => d3.ascending(a[category], b[category])), 0.25, g => g[category])
-            const median = d3.median(filteredData.sort((a, b) => d3.ascending(a[category], b[category])), g => g[category])
-            let q3 = d3.quantile(filteredData.sort((a, b) => d3.ascending(a[category], b[category])), 0.75, g => g[category])
-            */
 
             const sortedFilteredData = filteredData.map(g => parseFloat(g[category]))
                 //.filter(g => g !== null && !isNaN(g))
                 .map(g => isNaN(g) ? 0 : g)
                 .sort(d3.ascending)
-            //console.log(sortedFilteredData)
 
-            let q1 = d3.quantile(sortedFilteredData, 0.25)
-            const median = quantile(sortedFilteredData, 0.5) //d3.median(sortedFilteredData) //d3.quantile(sortedFilteredData, 0.50)
-            let q3 = d3.quantile(sortedFilteredData, 0.75)
-
-            //q1 = quantile(sortedFilteredData, 0.25)
-            //q3 = quantile(sortedFilteredData, 0.75)
-
-            /*if (q1 > q3) {
-                const temp = q1
-                q1 = q3
-                q3 = temp
-            }*/
+            const q1 = d3.quantile(sortedFilteredData, 0.25)
+            const median = d3.quantile(sortedFilteredData, 0.5)
+            const q3 = d3.quantile(sortedFilteredData, 0.75)
 
             const interQuantileRange = q3 - q1
             const min = Math.max(currentMin, q1 - 1.5 * interQuantileRange)
@@ -170,7 +127,6 @@ function drawConfidence(data, regions, category) {
         .attr('y2', d => y(d.value.median ? d.value.median : 0))
         .attr('stroke', 'black')
         .style('width', 80)
-}
 
-// Design https://clauswilke.com/dataviz/visualizing-uncertainty.html
-// https://d3-graph-gallery.com/graph/boxplot_several_groups.html
+    // TODO Plot outliers
+}

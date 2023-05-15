@@ -1,5 +1,6 @@
 // Code from https://d3-graph-gallery.com/graph/histogram_basic.html
 // set the dimensions and margins of the graph
+// TODO Place at better place
 const marginHistogram = { top: 10, right: 30, bottom: 30, left: 40 },
     widthHistogram = 1460 - marginHistogram.left - marginHistogram.right,
     heightHistogram = 100 - marginHistogram.top - marginHistogram.bottom
@@ -34,14 +35,7 @@ d3.csv('data/mc1-reports-data.csv',
         // Define brushing
         const brush = d3.brushX()
             .extent([[0, 0], [widthHistogram, heightHistogram]])
-            // When you change or move the brush
-            .on('brush', burshed)
-            // When you release the mouse button
-            .on('end', burshed)
-
-
-
-        // data = data.filter(d => d.shake_intensity)
+            .on('brush end', burshed)
 
         // X axis: scale and draw:
         const x = d3.scaleTime()
@@ -58,7 +52,7 @@ d3.csv('data/mc1-reports-data.csv',
             (data)
 
         // Y axis: scale and draw:
-        const y = d3.scaleLinear()
+        const y = d3.scaleSqrt()
             .range([heightHistogram, 0])
             .domain([0, d3.max(bins, d => d.length)])   // d3.hist has to be called before the Y axis obviously
         svgHistogram.append('g')
@@ -80,21 +74,8 @@ d3.csv('data/mc1-reports-data.csv',
             .call(brush)
             .attr('id', 'time-brush')
 
-
         function burshed() {
             update()
-            if (d3.event.selection) {
-                const lowerTimeRatio = d3.event.selection[0] / widthHistogram
-                const upperTimeRatio = d3.event.selection[1] / widthHistogram
-
-                const lowerTime = lowerTimeRatio * d3.timeMinute.count(d3.min(data, d => d.time), d3.max(data, d => d.time))
-                const upperTime = upperTimeRatio * d3.timeMinute.count(d3.min(data, d => d.time), d3.max(data, d => d.time))
-
-                const minTime = d3.min(data, d => d.time)
-                return
-                console.log(d3.timeMinute.offset(minTime, lowerTime))
-                console.log(d3.timeMinute.offset(minTime, upperTime))
-            }
         }
     }
 )

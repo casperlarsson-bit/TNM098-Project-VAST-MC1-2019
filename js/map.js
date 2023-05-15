@@ -222,9 +222,5 @@ function ready(error, data, regions) {
             return d.charAt(0).toUpperCase() + d.slice(1).replace(/_/g, ' ')
         })
 
-    // Temp dates
-    document.getElementById('start').addEventListener('change', () => update())
-    document.getElementById('end').addEventListener('change', () => update())
-
     update()
 }

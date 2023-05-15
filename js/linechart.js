@@ -14,6 +14,7 @@ const svgChart = d3.select('#lineplot-canvas')
 
 const numCharts = 3.5
 function drawIndividualChart(yPosition, data, color) {
+    // TODO Design
     // Add X axis --> it is a time format
     const x = d3.scaleTime()
         .domain(d3.extent(data, function (d) { return d.time }))
@@ -73,7 +74,6 @@ function drawCharts(data, regionID, category) {
         .entries(filteredData)
 
     const test = filteredData.map((d, i) => { return { time: d.time, value: movingAverage[0].value.movingAverage[i] } })
-
 
     drawIndividualChart(2 * height / numCharts + 1 * spacing, test, 'black')
 }
