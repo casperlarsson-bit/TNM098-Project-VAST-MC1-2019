@@ -1,6 +1,6 @@
 const mapWidth = 900 //document.getElementById('map-canvas').offsetWidth
 const mapHeight = 600 //document.getElementById('map-canvas').offsetHeight
-const svg = d3.select('#map-canvas')
+const svgBar = d3.select('#map-canvas')
     .append('svg')
     .attr('width', '80%')
     .attr('height', '100%')
@@ -10,8 +10,6 @@ const projection = d3.geoEquirectangular()
     .center([80, -50])
     .translate([mapWidth / 2, mapHeight / 2]) // translate to center of screen
     .scale([300]) // Temp scale
-
-
 
 const path = d3.geoPath().projection(projection)
 
@@ -42,7 +40,7 @@ function ready(error, data, regions) {
     const originalData = data
 
     window.update = function () {
-        svg.selectAll('*').remove()
+        svgBar.selectAll('*').remove()
         d3.selectAll('.tooltip').remove()
         const category = document.getElementById('select-category').value.toLowerCase().replace(/ /g, '_')
         data = originalData
@@ -61,7 +59,7 @@ function ready(error, data, regions) {
 
         data = data.filter(d => d.time > lowerTime && d.time < upperTime)
 
-        const enterData = svg.selectAll('g')
+        const enterData = svgBar.selectAll('g')
             .data(regions.features)
             .enter()
 
@@ -75,6 +73,7 @@ function ready(error, data, regions) {
             })
 
         drawConfidence(data, regions, category)
+        drawBarChart(data, regions, category)
 
         // Add text and position them over the area
         enterData.append('g').append('text')
@@ -120,7 +119,7 @@ function ready(error, data, regions) {
         // Color code from https://gist.github.com/HarryStevens/6eb89487fc99ad016723b901cbd57fde
         const colorData = [{ 'color': colorScale(-1), 'value': 0 }, { 'color': colorScale(0), 'value': 5 }, { 'color': colorScale(1), 'value': 10 }, { 'color': colorScale(2), 'value': 15 }, { 'color': colorScale(3), 'value': 20 }, { 'color': colorScale(4), 'value': 25 }, { 'color': colorScale(5), 'value': 30 }, { 'color': colorScale(6), 'value': 35 }, { 'color': colorScale(7), 'value': 40 }]
         const extent = d3.extent(colorData, d => d.value);
-        const defs = svg.append('defs')
+        const defs = svgBar.append('defs')
         const linearGradient = defs.append('linearGradient').attr('id', 'myGradient')
         linearGradient.selectAll('stop')
             .data(colorData)
@@ -129,19 +128,19 @@ function ready(error, data, regions) {
             .attr('stop-color', d => d.color)
 
         // Colour scale explanation
-        svg.append('rect')
+        svgBar.append('rect')
             .attr('x', 20)
             .attr('y', 400)
             .attr('height', 40)
             .attr('width', 180)
             .attr('id', 'scale')
             .style('fill', 'url(#myGradient')
-        svg.append('g')
+        svgBar.append('g')
             .append('text')
             .attr('dx', 20)
             .attr('dy', 400 - 5)
             .text('Low')
-        svg.append('g')
+        svgBar.append('g')
             .append('text')
             .attr('dx', 200)
             .attr('dy', 400 - 5)

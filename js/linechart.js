@@ -1,13 +1,13 @@
 // set the dimensions and margins of the graph
 const margin = { top: 10, right: 0, bottom: 30, left: 60 },
-    width = document.getElementById('lineplot-canvas').offsetWidth - margin.left - margin.right - 0.1 * document.getElementById('lineplot-canvas').offsetWidth,
+    width = document.getElementById('lineplot-canvas').offsetWidth - margin.left - margin.right,
     height = document.getElementById('lineplot-canvas').offsetHeight - margin.top - margin.bottom
 
 // append the svg object to the body of the page
 const svgChart = d3.select('#lineplot-canvas')
     .append('svg')
-    .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom)
+    .attr('width', '100%')
+    .attr('height', '100%')
     .append('g')
     .attr('transform',
         'translate(' + margin.left + ',' + margin.top + ')')

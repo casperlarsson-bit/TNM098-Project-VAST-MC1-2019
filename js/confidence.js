@@ -4,14 +4,14 @@ const colorScale = d3.scaleThreshold()
     .domain(Array.from(Array(11).keys()))
     .range(d3.schemeOrRd[9])
 
-const marginC = { top: 10, right: 30, bottom: 20, left: 60 },
-    widthC = document.getElementById('overview').offsetWidth - marginC.left - marginC.right,
+const marginC = { top: 10, right: 30, bottom: 80, left: 60 },
+    widthC = document.getElementById('overview').offsetWidth - marginC.left - marginC.right - 0.04 * document.getElementById('overview').offsetWidth,
     heightC = document.getElementById('overview').offsetHeight - marginC.top - marginC.bottom
 
 const svgC = d3.select('#overview')
     .append('svg')
-    .attr('width', widthC + marginC.left + marginC.right)
-    .attr('height', heightC + marginC.top + marginC.bottom)
+    .attr('width', '100%')
+    .attr('height', '100%')
     .append('g')
     .attr('transform',
         'translate(' + marginC.left + ',' + marginC.top + ')')
@@ -60,10 +60,13 @@ function drawConfidence(data, regions, category) {
     svgC.append('g')
         .attr('transform', 'translate(0,' + heightC + ')')
         .call(d3.axisBottom(x))
+        .selectAll('text')
+        .attr('transform', 'translate(-10,0)rotate(-45)')
+        .style('text-anchor', 'end')
 
     const y = d3.scaleLinear()
         .range([heightC, 0])
-        .domain([d3.min(sumstats, d => d.value.min) - 1, d3.max(sumstats, d => d.value.max) + 1])
+        .domain([d3.min(sumstats, d => d.value.min) - 0.5, d3.max(sumstats, d => d.value.max)])
     svgC.append('g')
         .call(d3.axisLeft(y))
 
@@ -79,7 +82,7 @@ function drawConfidence(data, regions, category) {
         .style('stroke-width', 1)
 
     // Rectangle for the main box
-    const boxWidth = 50
+    const boxWidth = 30
     svgC.selectAll('boxes')
         .data(sumstats)
         .enter()

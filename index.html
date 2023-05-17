@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/map.css">
     <link rel="stylesheet" href="css/uncertainty.css">
+    <link rel="stylesheet" href="css/barchart.css">
 </head>
 
 <body>
@@ -27,14 +28,16 @@
             <div id="time-range"></div>
         </div>
         <div class="column box-shadow" id="lineplot-canvas"></div>
+        <div class="column box-shadow" id="overview"></div>
+        <div class="column box-shadow" id="bar-chart"></div>
     </div>
-
-    <div class="box-shadow" id="overview"></div>
+    
 </body>
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 
+<script src="js/barchart.js"></script>
 <script src="js/confidence.js"></script>
 <script src="js/linechart.js"></script>
 <script src="js/histogram.js"></script>
