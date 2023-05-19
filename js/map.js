@@ -148,7 +148,7 @@ function ready(error, data, regions) {
             .text('High')
 
         // Create a tooltip from https://d3-graph-gallery.com/graph/interactivity_tooltip.html
-        const Tooltip = d3.select('#map-canvas')
+        const tooltip = d3.select('#map-canvas')
             .append('div')
             .style('opacity', 0)
             .attr('class', 'tooltip')
@@ -163,7 +163,7 @@ function ready(error, data, regions) {
             d3.selectAll('.region' + d.id)
                 .style('fill', 'lightblue')
 
-            Tooltip.style('opacity', 1)
+            tooltip.style('opacity', 1)
                 .style('z-index', 10)
         }
 
@@ -172,13 +172,13 @@ function ready(error, data, regions) {
             const mean = filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0
             const numReports = filteredData.filter(g => g[category]).filter(g => g != '').length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 
-            Tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2) + '<br />Number of reports:<br />' + numReports)
+            tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2) + '<br />Number of reports:<br />' + numReports)
                 .style('left', (d3.event.pageX) + 'px')
                 .style('top', (d3.event.pageY - 20) + 'px')
         }
 
         const mouseleave = (d) => {
-            Tooltip.style('opacity', 0)
+            tooltip.style('opacity', 0)
                 .style('z-index', -1)
         }
 

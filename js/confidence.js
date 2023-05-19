@@ -96,26 +96,58 @@ function drawConfidence(data, regions, category) {
         .style('fill', d => colorScale(d.value.mean))
         .style('opacity', 0.8)
 
+    const tooltip = d3.select('#overview')
+        .append('div')
+        .style('opacity', 0)
+        .attr('class', 'tooltip')
+        .style('width', 100)
+        .style('background-color', 'white')
+        .style('border', 'solid')
+        .style('border-width', '2px')
+        .style('border-radius', '5px')
+        .style('padding', '5px')
+
+    const mouseover = (d) => {
+        d3.selectAll('.region' + d.value.id)
+            .style('fill', 'lightblue')
+
+        tooltip.style('opacity', 1)
+            .style('z-index', 10)
+    }
+
+    function mousemove(d) {
+        tooltip.html(d.value.id + ' ' + d.key)
+            // TODO Currently not responsive to screen resolution
+            .style('left', (d3.mouse(this)[0] + 80) + 'px')
+            .style('top', (d3.mouse(this)[1] - 320) + 'px')
+    }
+
+    const mouseleave = (d) => {
+        tooltip.style('opacity', 0)
+            .style('z-index', -1)
+    }
+
+    const mouseout = (d) => {
+        d3.selectAll('.region' + d.value.id)
+            .style('fill', d => {
+                if (d.value) {
+                    const filteredData = data.filter(i => i.location === d.value.id)
+                    return colorScale(d3.mean(filteredData, i => i[category]))
+                }
+
+                const filteredData = data.filter(i => i.location === d.id)
+                return colorScale(d3.mean(filteredData, i => i[category]))
+            })
+    }
+
     d3.selectAll('.box')
         .on('click', d => {
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
         })
-        .on('mouseover', d => {
-            d3.selectAll('.region' + d.value.id)
-                .style('fill', 'lightblue')
-        })
-        .on('mouseout', d => {
-            d3.selectAll('.region' + d.value.id)
-                .style('fill', d => {
-                    if (d.value) {
-                        const filteredData = data.filter(i => i.location === d.value.id)
-                        return colorScale(d3.mean(filteredData, i => i[category]))
-                    }
-
-                    const filteredData = data.filter(i => i.location === d.id)
-                    return colorScale(d3.mean(filteredData, i => i[category]))
-                })
-        })
+        .on('mouseover', mouseover)
+        .on('mouseout', mouseout)
+        .on('mousemove', mousemove)
+        .on('mouseleave', mouseleave)
 
     // Show the median
     svgC.selectAll('medianLines')

@@ -23,14 +23,12 @@ function drawBarChart(data, regions, category) {
             const numReports = filteredData.filter(g => g[category]).filter(g => g != '').length
             const mean = filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0
 
-
             return ({ id: d[0].id, numReports: numReports, mean: mean })
         })
         .entries(regions.features)
         .sort((a, b) => d3.ascending(a.value.mean, b.value.mean))
 
     const regionNames = sumstats.map(d => d.key)
-    //console.log(sumstats)
 
     // X axis
     const x = d3.scaleBand()
@@ -64,24 +62,60 @@ function drawBarChart(data, regions, category) {
         .attr('fill', d => colorScale(d.value.mean))
         .style('opacity', 0.8)
 
+    const tooltip = d3.select('#bar-chart')
+        .append('div')
+        .style('opacity', 0)
+        .attr('class', 'tooltip')
+        .style('width', 100)
+        .style('background-color', 'white')
+        .style('border', 'solid')
+        .style('border-width', '2px')
+        .style('border-radius', '5px')
+        .style('padding', '5px')
+
+    const mouseover = (d) => {
+        d3.selectAll('.region' + d.value.id)
+            .style('fill', 'lightblue')
+
+        tooltip.style('opacity', 1)
+            .style('z-index', 10)
+    }
+
+    function mousemove(d) {
+        const numReports = d.value.numReports.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+
+        console.log(d3.mouse(this))
+
+        tooltip.html(d.value.id + ' ' + d.key + '<br />Number of reports:<br />' + numReports)
+            // TODO Currently not responsive to screen resolution
+            .style('left', (d3.mouse(this)[0] + 80) + 'px')
+            .style('top', (d3.mouse(this)[1] - 300) + 'px')
+    }
+
+    const mouseleave = (d) => {
+        tooltip.style('opacity', 0)
+            .style('z-index', -1)
+    }
+
+    const mouseout = (d) => {
+        d3.selectAll('.region' + d.value.id)
+            .style('fill', d => {
+                if (d.value) {
+                    const filteredData = data.filter(i => i.location === d.value.id)
+                    return colorScale(d3.mean(filteredData, i => i[category]))
+                }
+
+                const filteredData = data.filter(i => i.location === d.id)
+                return colorScale(d3.mean(filteredData, i => i[category]))
+            })
+    }
+
     d3.selectAll('.bar')
         .on('click', d => {
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
         })
-        .on('mouseover', d => {
-            d3.selectAll('.region' + d.value.id)
-                .style('fill', 'lightblue')
-        })
-        .on('mouseout', d => {
-            d3.selectAll('.region' + d.value.id)
-                .style('fill', d => {
-                    if (d.value) {
-                        const filteredData = data.filter(i => i.location === d.value.id)
-                        return colorScale(d3.mean(filteredData, i => i[category]))
-                    }
-
-                    const filteredData = data.filter(i => i.location === d.id)
-                    return colorScale(d3.mean(filteredData, i => i[category]))
-                })
-        })
+        .on('mouseover', mouseover)
+        .on('mouseout', mouseout)
+        .on('mousemove', mousemove)
+        .on('mouseleave', mouseleave)
 }
