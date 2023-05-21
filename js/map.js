@@ -74,6 +74,7 @@ function ready(error, data, regions) {
 
         drawConfidence(data, regions, category)
         drawBarChart(data, regions, category)
+        drawCharts(data, regions, category)
 
         // Add text and position them over the area
         enterData.append('g').append('text')

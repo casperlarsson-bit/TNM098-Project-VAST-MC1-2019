@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="css/map.css">
     <link rel="stylesheet" href="css/uncertainty.css">
     <link rel="stylesheet" href="css/barchart.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstat/1.9.3/jstat.min.js"></script>
+    <script src="https://unpkg.com/d3@7"></script>
+    <script src="https://unpkg.com/d3fc@3"></script>
+    
+
+    
+
 </head>
 
 <body>
@@ -25,11 +32,14 @@
         <div class="column box-shadow" id="overview"></div>
         <div class="column box-shadow" id="bar-chart"></div>
     </div>
-    
+    <button id="downsample-button">Downsample Data</button>
+
 </body>
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+
 
 <script src="js/barchart.js"></script>
 <script src="js/confidence.js"></script>
