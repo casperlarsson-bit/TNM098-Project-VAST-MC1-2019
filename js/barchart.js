@@ -1,6 +1,6 @@
 // https://d3-graph-gallery.com/graph/barplot_basic.html
 // set the dimensions and margins of the graph
-const marginBar = { top: 30, right: 30, bottom: 80, left: 60 },
+const marginBar = { top: 50, right: 30, bottom: 80, left: 60 },
     widthBar = document.getElementById('bar-chart').offsetWidth - marginBar.left - marginBar.right,
     heightBar = document.getElementById('bar-chart').offsetHeight - marginBar.top - marginBar.bottom
 
