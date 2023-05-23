@@ -115,6 +115,7 @@ function ready(error, data, regions) {
             })
             .text(d => d.id.replace(/^0+/, '') + ' ' + d.properties.name)
             .attr('class', 'region-name')
+            .style('pointer-events', 'none');
 
 //Earthquake area svg overlay
 const checkbox1 = d3.select('#checkbox1');
