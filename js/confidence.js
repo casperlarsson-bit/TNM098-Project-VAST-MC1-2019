@@ -4,11 +4,11 @@ const colorScale = d3.scaleThreshold()
     .domain(Array.from(Array(11).keys()))
     .range(d3.schemeOrRd[9])
 
-const marginC = { top: 10, right: 30, bottom: 80, left: 60 },
-    widthC = document.getElementById('overview').offsetWidth - marginC.left - marginC.right - 0.04 * document.getElementById('overview').offsetWidth,
-    heightC = document.getElementById('overview').offsetHeight - marginC.top - marginC.bottom
+const marginC = { top: 50, right: 30, bottom: 80, left: 60 },
+    widthC = document.getElementById('confidence').offsetWidth - marginC.left - marginC.right - 0.04 * document.getElementById('confidence').offsetWidth,
+    heightC = document.getElementById('confidence').offsetHeight - marginC.top - marginC.bottom
 
-const svgC = d3.select('#overview')
+const svgC = d3.select('#confidence')
     .append('svg')
     .attr('width', '100%')
     .attr('height', '100%')
@@ -96,7 +96,7 @@ function drawConfidence(data, regions, category) {
         .style('fill', d => colorScale(d.value.mean))
         .style('opacity', 0.8)
 
-    const tooltip = d3.select('#overview')
+    const tooltip = d3.select('#confidence')
         .append('div')
         .style('opacity', 0)
         .attr('class', 'tooltip')

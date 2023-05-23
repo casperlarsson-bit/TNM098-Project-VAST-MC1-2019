@@ -249,7 +249,7 @@ function updateShakemap() {
             const mean = filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0
             const numReports = filteredData.filter(g => g[category]).filter(g => g != '').length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 
-            tooltip.html(d.id + ' ' + d.properties.name + ' <br />With value ' + mean.toFixed(2) + '<br />Number of reports:<br />' + numReports)
+            tooltip.html(d.id + ' ' + d.properties.name + '<br />' + document.getElementById('select-category').value + ': ' + mean.toFixed(2) + '<br />Number of reports:<br />' + numReports)
                 .style('left', (d3.event.pageX) + 'px')
                 .style('top', (d3.event.pageY - 20) + 'px')
         }
