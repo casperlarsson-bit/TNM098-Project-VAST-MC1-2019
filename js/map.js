@@ -115,37 +115,22 @@ function ready(error, data, regions) {
             })
             .text(d => d.id.replace(/^0+/, '') + ' ' + d.properties.name)
             .attr('class', 'region-name')
-    //Earthquake area svg overlay
-    const checkbox1 = d3.select('#map-canvas')
-    .append('label')
-    .style('position', 'relative')
-    .style('top', '100px')
-    .text('Pre quake area')
-    .append('input')
-    .attr('type', 'checkbox')
-    .property('checked', false)
-    .on('change', updateShakemap);
-  
-  const checkbox2 = d3.select('#map-canvas')
-    .append('label')
-    .style('position', 'relative')
-    .style('top', '130px') 
-    .text('Earth quake area')
-    .append('input')
-    .attr('type', 'checkbox')
-    .property('checked', false)
-    .on('change', updateShakemap);
-  
-  function updateShakemap() {
+
+//Earthquake area svg overlay
+const checkbox1 = d3.select('#checkbox1');
+const checkbox2 = d3.select('#checkbox2');
+function updateShakemap() {
     const showEllipse1 = checkbox1.property('checked');
     const showEllipse2 = checkbox2.property('checked');
     // Toggle visibility
     svgBar.select('#ellipse1').style('display', showEllipse1 ? 'block' : 'none');
     svgBar.select('#ellipse2').style('display', showEllipse2 ? 'block' : 'none');
   }
-  const cx1 = 400, cy1 = 50;
-  const cx2 = 425, cy2 = 25;
-  const angle = 40;
+    checkbox1.on('change', updateShakemap);
+    checkbox2.on('change', updateShakemap);
+    const cx1 = 400, cy1 = 50;
+    const cx2 = 425, cy2 = 25;
+    const angle = 40;
 
   svgBar.append('ellipse')
     .attr('id', 'ellipse1')
