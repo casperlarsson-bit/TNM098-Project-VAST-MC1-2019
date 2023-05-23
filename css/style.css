@@ -39,7 +39,7 @@ body {
     margin-right: 10px;
 }
 
-#overview {
+#confidence {
     height: calc(100vh - (60vh + 3 * 10px));
     position: relative;
     margin-top: 10px;
@@ -48,6 +48,7 @@ body {
 
 #bar-chart {
     height: calc(100vh - (60vh + 3 * 10px));
+    position: relative;
     margin-top: 10px;
 }
 
@@ -64,4 +65,15 @@ body {
     background-color: white;
     border-radius: 10px;
     box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.section-heading {
+    position: absolute;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin-top: 0;
+    font-family: Arial, Helvetica, sans-serif;
 }
