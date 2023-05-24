@@ -1,3 +1,5 @@
+let selectedRegion = null
+
 // https://d3-graph-gallery.com/graph/barplot_basic.html
 // set the dimensions and margins of the graph
 const marginBar = { top: 50, right: 30, bottom: 80, left: 60 },
@@ -84,8 +86,6 @@ function drawBarChart(data, regions, category) {
     function mousemove(d) {
         const numReports = d.value.numReports.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
 
-        console.log(d3.mouse(this))
-
         tooltip.html(d.value.id + ' ' + d.key + '<br />Number of reports:<br />' + numReports)
             // TODO Currently not responsive to screen resolution
             .style('left', (d3.mouse(this)[0] + 80) + 'px')
@@ -112,6 +112,7 @@ function drawBarChart(data, regions, category) {
 
     d3.selectAll('.bar')
         .on('click', d => {
+            selectedRegion = d.value.id
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
         })
         .on('mouseover', mouseover)

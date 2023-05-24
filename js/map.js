@@ -68,12 +68,13 @@ function ready(error, data, regions) {
             .attr('class', d => 'region region' + d.id)
             .style('fill', d => {
                 const filteredData = data.filter(i => i.location === d.id)
-                //console.log(d.id + ' ' + filteredData.length)
                 return colorScale(filteredData.length > 0 ? d3.mean(filteredData, i => i[category]) : 0)
             })
 
         drawConfidence(data, regions, category)
         drawBarChart(data, regions, category)
+        //console.log(selectedRegion)
+        drawCharts(data, selectedRegion, category)
 
         // Add text and position them over the area
         enterData.append('g').append('text')
@@ -274,12 +275,18 @@ function ready(error, data, regions) {
 
         d3.selectAll('.region')
             .on('click', d => {
+                selectedRegion = d.id
                 drawCharts(data, d.id.replace(/^0+/, ''), category)
             })
             .on('mouseover', mouseover)
             .on('mouseout', mouseout)
             .on('mousemove', mousemove)
             .on('mouseleave', mouseleave)
+
+        const showReports = d3.select('#all-reports')
+            .on('change', () => {
+                drawCharts(data, selectedRegion, category)
+            })
     }
 
     // Create a select element

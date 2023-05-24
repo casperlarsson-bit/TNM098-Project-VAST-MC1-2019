@@ -1,5 +1,5 @@
 // set the dimensions and margins of the graph
-const margin = { top: 10, right: 0, bottom: 30, left: 60 },
+const margin = { top: 50, right: 0, bottom: 30, left: 60 },
   width = document.getElementById('lineplot-canvas').offsetWidth - margin.left - margin.right,
   height = document.getElementById('lineplot-canvas').offsetHeight - margin.top - margin.bottom
 
@@ -107,6 +107,7 @@ function movingAverage(data, windowSize, category) {
 }
 
 function drawCharts(data, regionID, category) {
+  if (regionID == null) return
   svgChart.selectAll("*").remove()
   data = data.sort((a, b) => d3.ascending(a.time, b.time))
   const filteredData = data.filter(d => d.location === regionID)
@@ -116,7 +117,6 @@ function drawCharts(data, regionID, category) {
 
   const movAvgData = movingAverage(filteredData, 50, category)
 
-  //  console.log(movAvgData)
   const shakeDataMavg = movAvgData.map(d => ({ time: d.time, value: d.shake_intensity }))
   const shakeData = filteredData.map(d => ({ time: d.time, value: d.shake_intensity }))
 

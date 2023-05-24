@@ -142,6 +142,7 @@ function drawConfidence(data, regions, category) {
 
     d3.selectAll('.box')
         .on('click', d => {
+            selectedRegion = d.value.id
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
         })
         .on('mouseover', mouseover)
