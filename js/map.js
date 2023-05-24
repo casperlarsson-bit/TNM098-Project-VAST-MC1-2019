@@ -73,8 +73,7 @@ function ready(error, data, regions) {
 
         drawConfidence(data, regions, category)
         drawBarChart(data, regions, category)
-        //console.log(selectedRegion)
-        drawCharts(data, selectedRegion, category)
+        drawCharts(data, selectedRegion, category, regions)
 
         // Add text and position them over the area
         enterData.append('g').append('text')
@@ -276,7 +275,7 @@ function ready(error, data, regions) {
         d3.selectAll('.region')
             .on('click', d => {
                 selectedRegion = d.id
-                drawCharts(data, d.id.replace(/^0+/, ''), category)
+                drawCharts(data, d.id.replace(/^0+/, ''), category, regions)
             })
             .on('mouseover', mouseover)
             .on('mouseout', mouseout)
@@ -285,12 +284,17 @@ function ready(error, data, regions) {
 
         d3.select('#all-reports')
             .on('change', () => {
-                drawCharts(data, selectedRegion, category)
+                drawCharts(data, selectedRegion, category, regions)
             })
 
         d3.select('#moving-average')
             .on('change', () => {
-                drawCharts(data, selectedRegion, category)
+                drawCharts(data, selectedRegion, category, regions)
+            })
+
+        d3.select('#confidence-interval')
+            .on('change', () => {
+                drawCharts(data, selectedRegion, category, regions)
             })
     }
 

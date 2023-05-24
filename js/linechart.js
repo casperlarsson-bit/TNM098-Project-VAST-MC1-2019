@@ -15,6 +15,7 @@ const svgChart = d3.select('#lineplot-canvas')
 const numCharts = 3.5
 
 function drawAxes(data, spacing) {
+  const categories = ['Shake Data', 'Power Data', document.getElementById('select-category').value]
   for (let i = 0; i < 3; ++i) {
     // Add X axis --> it is a time format
     const x = d3.scaleTime()
@@ -30,6 +31,16 @@ function drawAxes(data, spacing) {
       .range([((i + 1) * height / numCharts + i * spacing), ((i + 1) * height / numCharts + i * spacing) - height / numCharts])
     svgChart.append('g')
       .call(d3.axisLeft(y))
+
+    //Label
+    svgChart.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', -margin.left)
+      .attr('x', -(((i + 1) * height / numCharts + i * spacing) - height / (numCharts * 2)))
+      .attr('dy', '1em')
+      .style('text-anchor', 'middle')
+      .classed('axis-label', true)
+      .text(categories[i])
   }
 
   // Add legend
@@ -40,30 +51,44 @@ function drawAxes(data, spacing) {
   // label 1
   legend.append('rect')
     .attr('x', -15)
-    .attr('y', -15)
+    .attr('y', -45)
     .attr('width', 10)
     .attr('height', 10)
     .attr('fill', 'steelblue')
 
   legend.append('text')
     .attr('x', 0)
-    .attr('y', -10)
+    .attr('y', -40)
     .attr('dy', '0.35em')
     .text('Reports')
 
   // label 2
   legend.append('rect')
     .attr('x', -15)
-    .attr('y', 5)
+    .attr('y', -25)
     .attr('width', 10)
     .attr('height', 10)
     .attr('fill', 'red')
 
   legend.append('text')
     .attr('x', 0)
-    .attr('y', 10)
+    .attr('y', -20)
     .attr('dy', '0.35em')
     .text('Moving avg')
+
+  // label 3
+  legend.append('rect')
+    .attr('x', -15)
+    .attr('y', -5)
+    .attr('width', 10)
+    .attr('height', 10)
+    .attr('fill', 'lightgray')
+
+  legend.append('text')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('dy', '0.35em')
+    .text('95% CI')
 }
 
 function drawIndividualChart(yPosition, data, color, stroke, label) {
@@ -77,15 +102,6 @@ function drawIndividualChart(yPosition, data, color, stroke, label) {
     .domain([0, 10])
     .range([yPosition, yPosition - height / numCharts])
 
-  //Label
-  svgChart.append('text')
-    .attr('transform', 'rotate(-90)')
-    .attr('y', -margin.left)
-    .attr('x', -(yPosition - height / (numCharts * 2)))
-    .attr('dy', '1em')
-    .style('text-anchor', 'middle')
-    .classed('axis-label', true)
-    .text(label)
   // add line
   svgChart.append('path')
     .datum(data)
@@ -111,25 +127,62 @@ function movingAverage(data, windowSize, category) {
     const avg2 = d3.mean(windowData, d => d.power)
     const avg3 = d3.mean(windowData, d => d[category])
 
+    const standardDeviationShake = d3.deviation(windowData, d => d.shake_intensity)
+    const standardDeviationPower = d3.deviation(windowData, d => d.power)
+    const standardDeviationChosen = d3.deviation(windowData, d => d[category])
+
+    const confidenceShake = standardDeviationShake ? 1.96 * standardDeviationShake / Math.sqrt(windowData.length) : 0
+    const confidencePower = standardDeviationPower ? 1.96 * standardDeviationPower / Math.sqrt(windowData.length) : 0
+    const confidenceChosen = standardDeviationChosen ? 1.96 * standardDeviationChosen / Math.sqrt(windowData.length) : 0
+
     averagedData.push({
       time: data[i].time,
       shake_intensity: avg1,
       power: avg2,
-      [category]: avg3
+      [category]: avg3,
+      CI_left_shake: avg1 - confidenceShake,
+      CI_right_shake: avg1 + confidenceShake,
+      CI_left_power: avg2 - confidencePower,
+      CI_right_power: avg2 + confidencePower,
+      CI_left_chosen: avg3 - confidenceChosen,
+      CI_right_chosen: avg3 + confidenceChosen,
+      CI: confidenceChosen
     })
   }
 
   return averagedData
 }
 
-function drawCharts(data, regionID, category) {
+function drawConfidenceInterval(yPosition, data) {
+  // Add X axis --> it is a time format
+  const x = d3.scaleTime()
+    .domain(d3.extent(data, d => d.time))
+    .range([0, width])
+
+  // Add Y axis
+  const y = d3.scaleLinear()
+    .domain([0, 10])
+    .range([yPosition, yPosition - height / numCharts])
+
+  svgChart.append('path')
+    .datum(data)
+    .attr('fill', 'lightgray')
+    .attr('stroke', 'none')
+    .attr('d', d3.area()
+      .x(d => x(d.time))
+      .y0(d => y(Math.min(10, d.CI_right)))
+      .y1(d => y(Math.max(0, d.CI_left)))
+    )
+}
+
+function drawCharts(data, regionID, category, regions) {
   if (regionID == null) return
+  document.getElementById('linechart-heading').innerText = 'Linechart for ' + regions.features[regionID - 1].properties.name
   svgChart.selectAll('*').remove()
   data = data.sort((a, b) => d3.ascending(a.time, b.time))
   const filteredData = data.filter(d => d.location === regionID)
 
-  //Simple downsampling test 10 intervall
-  // const downsampledData = filteredData.filter((d, i) => i % 10 === 0)
+
 
   const movAvgData = movingAverage(filteredData, 50, category)
 
@@ -142,8 +195,18 @@ function drawCharts(data, regionID, category) {
   const powerDataMavg = movAvgData.map(d => ({ time: d.time, value: d.power }))
   const powerData = filteredData.map(d => ({ time: d.time, value: d.power }))
 
+  const shakeConfidence = movAvgData.map(d => ({ time: d.time, CI_left: d.CI_left_shake, CI_right: d.CI_right_shake }))
+  const powerConfidence = movAvgData.map(d => ({ time: d.time, CI_left: d.CI_left_power, CI_right: d.CI_right_power }))
+  const chosenConfidence = movAvgData.map(d => ({ time: d.time, value: d[category], CI_left: d.CI_left_chosen, CI_right: d.CI_right_chosen, CI: d.CI }))
+
   const spacing = 30
   drawAxes(data, spacing)
+
+  if (document.getElementById('confidence-interval').checked) {
+    drawConfidenceInterval(height / numCharts, shakeConfidence)
+    drawConfidenceInterval(2 * height / numCharts + 1 * spacing, powerConfidence)
+    drawConfidenceInterval(3 * height / numCharts + 2 * spacing, chosenConfidence)
+  }
 
   if (document.getElementById('all-reports').checked) {
     // Number of reports, regular lines
@@ -157,4 +220,5 @@ function drawCharts(data, regionID, category) {
     drawIndividualChart(2 * height / numCharts + 1 * spacing, powerDataMavg, 'red', 1)
     drawIndividualChart(3 * height / numCharts + 2 * spacing, choosenMavg, 'red', 1)
   }
+
 }
