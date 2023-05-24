@@ -283,7 +283,12 @@ function ready(error, data, regions) {
             .on('mousemove', mousemove)
             .on('mouseleave', mouseleave)
 
-        const showReports = d3.select('#all-reports')
+        d3.select('#all-reports')
+            .on('change', () => {
+                drawCharts(data, selectedRegion, category)
+            })
+
+        d3.select('#moving-average')
             .on('change', () => {
                 drawCharts(data, selectedRegion, category)
             })

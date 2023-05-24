@@ -13,41 +13,24 @@ const svgChart = d3.select('#lineplot-canvas')
     'translate(' + margin.left + ',' + margin.top + ')')
 
 const numCharts = 3.5
-function drawIndividualChart(yPosition, data, color, stroke, label) {
-  // Add X axis --> it is a time format
-  const x = d3.scaleTime()
-    .domain(d3.extent(data, d => d.time))
-    .range([0, width])
-  svgChart.append('g')
-    .attr('transform', 'translate(0,' + yPosition + ')')
-    .call(d3.axisBottom(x))
 
-  // Add Y axis
-  const y = d3.scaleLinear()
-    .domain([0, 10])
-    .range([yPosition, yPosition - height / numCharts])
-  svgChart.append('g')
-    .call(d3.axisLeft(y))
-  //Label
-  svgChart.append('text')
-    .attr('transform', 'rotate(-90)')
-    .attr('y', -margin.left)
-    .attr('x', -(yPosition - height / (numCharts * 2)))
-    .attr('dy', '1em')
-    .style('text-anchor', 'middle')
-    .classed('axis-label', true)
-    .text(label)
-  // add line
-  svgChart.append('path')
-    .datum(data)
-    .attr('fill', 'none')
-    .attr('stroke', color)
-    .attr('stroke-width', stroke)
-    .attr('d', d3.line()
-      .x(d => x(d.time))
-      .y(d => y(d.value))
-      .curve(d3.curveMonotoneX) //Smooth curve 
-    )
+function drawAxes(data, spacing) {
+  for (let i = 0; i < 3; ++i) {
+    // Add X axis --> it is a time format
+    const x = d3.scaleTime()
+      .domain(d3.extent(data, d => d.time))
+      .range([0, width])
+    svgChart.append('g')
+      .attr('transform', 'translate(0,' + ((i + 1) * height / numCharts + i * spacing) + ')')
+      .call(d3.axisBottom(x))
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+      .domain([0, 10])
+      .range([((i + 1) * height / numCharts + i * spacing), ((i + 1) * height / numCharts + i * spacing) - height / numCharts])
+    svgChart.append('g')
+      .call(d3.axisLeft(y))
+  }
 
   // Add legend
   const legend = svgChart.append('g')
@@ -83,6 +66,39 @@ function drawIndividualChart(yPosition, data, color, stroke, label) {
     .text('Moving avg')
 }
 
+function drawIndividualChart(yPosition, data, color, stroke, label) {
+  // Add X axis --> it is a time format
+  const x = d3.scaleTime()
+    .domain(d3.extent(data, d => d.time))
+    .range([0, width])
+
+  // Add Y axis
+  const y = d3.scaleLinear()
+    .domain([0, 10])
+    .range([yPosition, yPosition - height / numCharts])
+
+  //Label
+  svgChart.append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('y', -margin.left)
+    .attr('x', -(yPosition - height / (numCharts * 2)))
+    .attr('dy', '1em')
+    .style('text-anchor', 'middle')
+    .classed('axis-label', true)
+    .text(label)
+  // add line
+  svgChart.append('path')
+    .datum(data)
+    .attr('fill', 'none')
+    .attr('stroke', color)
+    .attr('stroke-width', stroke)
+    .attr('d', d3.line()
+      .x(d => x(d.time))
+      .y(d => y(d.value))
+      .curve(d3.curveMonotoneX) // Smooth curve 
+    )
+}
+
 // Define the movingAverage function
 function movingAverage(data, windowSize, category) {
   const averagedData = []
@@ -108,7 +124,7 @@ function movingAverage(data, windowSize, category) {
 
 function drawCharts(data, regionID, category) {
   if (regionID == null) return
-  svgChart.selectAll("*").remove()
+  svgChart.selectAll('*').remove()
   data = data.sort((a, b) => d3.ascending(a.time, b.time))
   const filteredData = data.filter(d => d.location === regionID)
 
@@ -127,13 +143,18 @@ function drawCharts(data, regionID, category) {
   const powerData = filteredData.map(d => ({ time: d.time, value: d.power }))
 
   const spacing = 30
-  //1
-  drawIndividualChart(height / numCharts, shakeData, 'steelblue', 0.5, 'Shake Data')
-  drawIndividualChart(height / numCharts, shakeDataMavg, 'red', 1)
-  //2
-  drawIndividualChart(2 * height / numCharts + 1 * spacing, powerData, 'steelblue', 0.5, 'Power Data')
-  drawIndividualChart(2 * height / numCharts + 1 * spacing, powerDataMavg, 'red', 1)
-  //3
-  drawIndividualChart(3 * height / numCharts + 2 * spacing, chosenData, 'steelblue', 0.5, document.getElementById('select-category').value)
-  drawIndividualChart(3 * height / numCharts + 2 * spacing, choosenMavg, 'red', 1)
+  drawAxes(data, spacing)
+
+  if (document.getElementById('all-reports').checked) {
+    // Number of reports, regular lines
+    drawIndividualChart(height / numCharts, shakeData, 'steelblue', 0.5, 'Shake Data')
+    drawIndividualChart(2 * height / numCharts + 1 * spacing, powerData, 'steelblue', 0.5, 'Power Data')
+    drawIndividualChart(3 * height / numCharts + 2 * spacing, chosenData, 'steelblue', 0.5, document.getElementById('select-category').value)
+  }
+
+  if (document.getElementById('moving-average').checked) {
+    drawIndividualChart(height / numCharts, shakeDataMavg, 'red', 1)
+    drawIndividualChart(2 * height / numCharts + 1 * spacing, powerDataMavg, 'red', 1)
+    drawIndividualChart(3 * height / numCharts + 2 * spacing, choosenMavg, 'red', 1)
+  }
 }

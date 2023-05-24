@@ -34,15 +34,23 @@
                     </p>
                     <p>
                         <label>
-                            <input type="checkbox" id="all-reports">
+                            <input type="checkbox" id="all-reports" checked>
                             Show individual reports
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="moving-average" checked>
+                            Show moving average
                         </label>
                     </p>
                 </div>
             </div>
             <div id="time-range"></div>
         </div>
-        <div class="column box-shadow" id="lineplot-canvas"></div>
+        <div class="column box-shadow" id="lineplot-canvas">
+            <h2 class="section-heading"></h2>
+        </div>
         <div class="column box-shadow" id="confidence">
             <h2 class="section-heading">Box plot</h2>
         </div>

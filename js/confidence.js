@@ -17,7 +17,7 @@ const svgC = d3.select('#confidence')
         'translate(' + marginC.left + ',' + marginC.top + ')')
 
 function drawConfidence(data, regions, category) {
-    svgC.selectAll("*").remove()
+    svgC.selectAll('*').remove()
 
     const sumstats = d3.nest()
         .key(d => d.properties.name)
