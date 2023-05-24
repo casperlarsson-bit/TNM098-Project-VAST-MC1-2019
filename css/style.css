@@ -12,6 +12,7 @@ body {
 
 /* Create two equal columns that floats next to each other */
 .column {
+    position: relative;
     float: left;
     width: calc(50% - 5px);
     padding: 10px;
@@ -35,20 +36,17 @@ body {
 }
 
 #map-canvas {
-    position: relative;
     margin-right: 10px;
 }
 
 #confidence {
     height: calc(100vh - (60vh + 3 * 10px));
-    position: relative;
     margin-top: 10px;
     margin-right: 10px;
 }
 
 #bar-chart {
     height: calc(100vh - (60vh + 3 * 10px));
-    position: relative;
     margin-top: 10px;
 }
 

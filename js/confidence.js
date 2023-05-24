@@ -17,7 +17,7 @@ const svgC = d3.select('#confidence')
         'translate(' + marginC.left + ',' + marginC.top + ')')
 
 function drawConfidence(data, regions, category) {
-    svgC.selectAll("*").remove()
+    svgC.selectAll('*').remove()
 
     const sumstats = d3.nest()
         .key(d => d.properties.name)
@@ -142,6 +142,7 @@ function drawConfidence(data, regions, category) {
 
     d3.selectAll('.box')
         .on('click', d => {
+            selectedRegion = d.value.id
             drawCharts(data, d.value.id.replace(/^0+/, ''), category)
         })
         .on('mouseover', mouseover)

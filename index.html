@@ -20,19 +20,43 @@
                 <label for="category">Select category:</label>
                 <div id="select-attribute"></div>
                 <div id="checkbox-container">
-                    <label>
-                      <input type="checkbox" id="checkbox1">
-                      Prequake overlay<br>
-                    </label>
-                    <label>
-                      <input type="checkbox" id="checkbox2">
-                      Earthquake overlay
-                    </label>
-                  </div>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="checkbox1">
+                            Prequake overlay<br>
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="checkbox2">
+                            Earthquake overlay
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="all-reports" checked>
+                            Show individual reports
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="moving-average" checked>
+                            Show moving average
+                        </label>
+                    </p>
+                    <p>
+                        <label>
+                            <input type="checkbox" id="confidence-interval" checked>
+                            Show confidence interval
+                        </label>
+                    </p>
+                </div>
             </div>
             <div id="time-range"></div>
         </div>
-        <div class="column box-shadow" id="lineplot-canvas"></div>
+        <div class="column box-shadow" id="lineplot-canvas">
+            <h2 class="section-heading" id="linechart-heading"></h2>
+        </div>
         <div class="column box-shadow" id="confidence">
             <h2 class="section-heading">Box plot</h2>
         </div>
@@ -40,7 +64,7 @@
             <h2 class="section-heading">Number of reports</h2>
         </div>
     </div>
-    
+
 </body>
 <script src="https://d3js.org/d3.v4.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
