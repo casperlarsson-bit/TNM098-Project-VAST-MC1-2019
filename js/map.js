@@ -115,87 +115,87 @@ function ready(error, data, regions) {
             })
             .text(d => d.id.replace(/^0+/, '') + ' ' + d.properties.name)
             .attr('class', 'region-name')
-            .style('pointer-events', 'none');
+            .style('pointer-events', 'none')
 
-//Earthquake area svg overlay
-const checkbox1 = d3.select('#checkbox1');
-const checkbox2 = d3.select('#checkbox2');
-function updateShakemap() {
-    const showEllipse1 = checkbox1.property('checked');
-    const showEllipse2 = checkbox2.property('checked');
-    // Toggle visibility
-    svgBar.select('#ellipse1').style('display', showEllipse1 ? 'block' : 'none');
-    svgBar.select('#ellipse2').style('display', showEllipse2 ? 'block' : 'none');
-  }
-    checkbox1.on('change', updateShakemap);
-    checkbox2.on('change', updateShakemap);
-    const cx1 = 400, cy1 = 50;
-    const cx2 = 425, cy2 = 25;
-    const angle = 40;
+        //Earthquake area svg overlay
+        const checkbox1 = d3.select('#checkbox1')
+        const checkbox2 = d3.select('#checkbox2')
+        function updateShakemap() {
+            const showEllipse1 = checkbox1.property('checked')
+            const showEllipse2 = checkbox2.property('checked')
+            // Toggle visibility
+            svgBar.select('#ellipse1').style('display', showEllipse1 ? 'block' : 'none')
+            svgBar.select('#ellipse2').style('display', showEllipse2 ? 'block' : 'none')
+        }
+        checkbox1.on('change', updateShakemap)
+        checkbox2.on('change', updateShakemap)
+        const cx1 = 400, cy1 = 50
+        const cx2 = 425, cy2 = 25
+        const angle = 40
 
-  svgBar.append('ellipse')
-    .attr('id', 'ellipse1')
-    .attr('cx', cx1)
-    .attr('cy', cy1)
-    .attr('rx', 200)
-    .attr('ry', 60)
-    .attr('transform', `rotate(${angle}, ${cx1}, ${cy1})`)
-    .style('fill', 'url(#ellipse-gradient)')
-    .style('pointer-events', 'none');
-  svgBar.append('ellipse')
-    .attr('id', 'ellipse2')
-    .attr('cx', cx2)
-    .attr('cy', cy2)
-    .attr('rx', 550)
-    .attr('ry', 280)
-    .attr('transform', `rotate(${angle}, ${cx1}, ${cy1})`)
-    .style('fill', 'url(#ellipse-gradient2)')
-    .style('pointer-events', 'none');
-  
-  // Radial gradient
-  const gradient = svgBar.append('defs')
-    .append('radialGradient')
-    .attr('id', 'ellipse-gradient')
-    .attr('cx', '50%')
-    .attr('cy', '50%')
-    .attr('r', '50%')
-    .attr('fx', '50%')
-    .attr('fy', '50%');
-  gradient.append('stop')
-    .attr('offset', '10%')
-    .style('stop-color', 'steelblue')
-    .style('stop-opacity', 1);
-  gradient.append('stop')
-    .attr('offset', '100%')
-    .style('stop-color', 'gray')
-    .style('stop-opacity', 0.1);
-    const gradient2 = svgBar.append('defs')
-    .append('radialGradient')
-    .attr('id', 'ellipse-gradient2')
-    .attr('cx', '50%')
-    .attr('cy', '50%')
-    .attr('r', '50%')
-    .attr('fx', '50%')
-    .attr('fy', '50%');
-  gradient2.append('stop')
-    .attr('offset', '0%')
-    .style('stop-color', 'yellow')
-    .style('stop-opacity', 1);
-  gradient2.append('stop')
-    .attr('offset', '20%')
-    .style('stop-color', '#87fe0f')
-    .style('stop-opacity', 0.6);
-  gradient2.append('stop')
-    .attr('offset', '40%')
-    .style('stop-color', '#0ffefe')
-    .style('stop-opacity', 0.1);
-    
+        svgBar.append('ellipse')
+            .attr('id', 'ellipse1')
+            .attr('cx', cx1)
+            .attr('cy', cy1)
+            .attr('rx', 200)
+            .attr('ry', 60)
+            .attr('transform', `rotate(${angle}, ${cx1}, ${cy1})`)
+            .style('fill', 'url(#ellipse-gradient)')
+            .style('pointer-events', 'none')
+        svgBar.append('ellipse')
+            .attr('id', 'ellipse2')
+            .attr('cx', cx2)
+            .attr('cy', cy2)
+            .attr('rx', 550)
+            .attr('ry', 280)
+            .attr('transform', `rotate(${angle}, ${cx1}, ${cy1})`)
+            .style('fill', 'url(#ellipse-gradient2)')
+            .style('pointer-events', 'none')
 
-  updateShakemap();
+        // Radial gradient
+        const gradient = svgBar.append('defs')
+            .append('radialGradient')
+            .attr('id', 'ellipse-gradient')
+            .attr('cx', '50%')
+            .attr('cy', '50%')
+            .attr('r', '50%')
+            .attr('fx', '50%')
+            .attr('fy', '50%')
+        gradient.append('stop')
+            .attr('offset', '10%')
+            .style('stop-color', 'steelblue')
+            .style('stop-opacity', 1)
+        gradient.append('stop')
+            .attr('offset', '100%')
+            .style('stop-color', 'gray')
+            .style('stop-opacity', 0.1)
+        const gradient2 = svgBar.append('defs')
+            .append('radialGradient')
+            .attr('id', 'ellipse-gradient2')
+            .attr('cx', '50%')
+            .attr('cy', '50%')
+            .attr('r', '50%')
+            .attr('fx', '50%')
+            .attr('fy', '50%')
+        gradient2.append('stop')
+            .attr('offset', '0%')
+            .style('stop-color', 'yellow')
+            .style('stop-opacity', 1)
+        gradient2.append('stop')
+            .attr('offset', '20%')
+            .style('stop-color', '#87fe0f')
+            .style('stop-opacity', 0.6)
+        gradient2.append('stop')
+            .attr('offset', '40%')
+            .style('stop-color', '#0ffefe')
+            .style('stop-opacity', 0.1)
+
+
+        updateShakemap()
 
         // Color code from https://gist.github.com/HarryStevens/6eb89487fc99ad016723b901cbd57fde
         const colorData = [{ 'color': colorScale(-1), 'value': 0 }, { 'color': colorScale(0), 'value': 5 }, { 'color': colorScale(1), 'value': 10 }, { 'color': colorScale(2), 'value': 15 }, { 'color': colorScale(3), 'value': 20 }, { 'color': colorScale(4), 'value': 25 }, { 'color': colorScale(5), 'value': 30 }, { 'color': colorScale(6), 'value': 35 }, { 'color': colorScale(7), 'value': 40 }]
-        const extent = d3.extent(colorData, d => d.value);
+        const extent = d3.extent(colorData, d => d.value)
         const defs = svgBar.append('defs')
         const linearGradient = defs.append('linearGradient').attr('id', 'myGradient')
         linearGradient.selectAll('stop')
