@@ -116,10 +116,10 @@ function drawConfidence(data, regions, category) {
     }
 
     function mousemove(d) {
-        tooltip.html(d.value.id + ' ' + d.key)
-            // TODO Currently not responsive to screen resolution
-            .style('left', (d3.mouse(this)[0] + 80) + 'px')
-            .style('top', (d3.mouse(this)[1] - 320) + 'px')
+        const currentHeight = document.getElementById('confidence').offsetHeight
+        tooltip.html(d.value.id + ' ' + d.key + '<br />Median: ' + d.value.median + '<br />Q1: ' + d.value.q1 + '<br />Q3: ' + d.value.q3)
+            .style('left', (d3.mouse(this)[0] + 78) + 'px')
+            .style('top', (-currentHeight + 15 + d3.mouse(this)[1] + 45) + 'px')
     }
 
     const mouseleave = (d) => {
@@ -143,7 +143,7 @@ function drawConfidence(data, regions, category) {
     d3.selectAll('.box')
         .on('click', d => {
             selectedRegion = d.value.id
-            drawCharts(data, d.value.id.replace(/^0+/, ''), category)
+            drawCharts(data, d.value.id.replace(/^0+/, ''), category, regions)
         })
         .on('mouseover', mouseover)
         .on('mouseout', mouseout)

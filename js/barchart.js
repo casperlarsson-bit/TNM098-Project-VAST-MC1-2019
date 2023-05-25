@@ -85,11 +85,10 @@ function drawBarChart(data, regions, category) {
 
     function mousemove(d) {
         const numReports = d.value.numReports.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-
+        const currentHeight = document.getElementById('bar-chart').offsetHeight
         tooltip.html(d.value.id + ' ' + d.key + '<br />Number of reports:<br />' + numReports)
-            // TODO Currently not responsive to screen resolution
-            .style('left', (d3.mouse(this)[0] + 80) + 'px')
-            .style('top', (d3.mouse(this)[1] - 300) + 'px')
+            .style('left', (d3.mouse(this)[0] + 78) + 'px')
+            .style('top', (-currentHeight + 15 + d3.mouse(this)[1] + 45) + 'px')
     }
 
     const mouseleave = (d) => {
@@ -113,7 +112,7 @@ function drawBarChart(data, regions, category) {
     d3.selectAll('.bar')
         .on('click', d => {
             selectedRegion = d.value.id
-            drawCharts(data, d.value.id.replace(/^0+/, ''), category)
+            drawCharts(data, d.value.id.replace(/^0+/, ''), category, regions)
         })
         .on('mouseover', mouseover)
         .on('mouseout', mouseout)
