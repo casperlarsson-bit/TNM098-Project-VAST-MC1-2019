@@ -68,6 +68,7 @@ function drawBarChart(data, regions, category) {
         .append('div')
         .style('opacity', 0)
         .attr('class', 'tooltip')
+        .attr('id', 'bar-chart-tooltip')
         .style('width', 100)
         .style('background-color', 'white')
         .style('border', 'solid')
@@ -85,11 +86,19 @@ function drawBarChart(data, regions, category) {
 
     function mousemove(d) {
         const numReports = d.value.numReports.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+        const currentHeight = document.getElementById('bar-chart').offsetHeight
 
-        tooltip.html(d.value.id + ' ' + d.key + '<br />Number of reports:<br />' + numReports)
-            // TODO Currently not responsive to screen resolution
-            .style('left', (d3.mouse(this)[0] + 80) + 'px')
-            .style('top', (d3.mouse(this)[1] - 300) + 'px')
+        // If the tooltip goes out if screen, 78 is mouse offset and 10 is margin for the canvas
+        if ((78 + 10 + document.getElementById('bar-chart-tooltip').offsetWidth + d3.mouse(this)[0]) > document.getElementById('bar-chart').offsetWidth) {
+            tooltip.html(d.value.id + ' ' + d.key + '<br />Number of reports:<br />' + numReports)
+                .style('left', (d3.mouse(this)[0] - 100) + 'px')
+                .style('top', (-currentHeight + 15 + d3.mouse(this)[1] + 45) + 'px')
+        }
+        else {
+            tooltip.html(d.value.id + ' ' + d.key + '<br />Number of reports:<br />' + numReports)
+                .style('left', (d3.mouse(this)[0] + 78) + 'px')
+                .style('top', (-currentHeight + 15 + d3.mouse(this)[1] + 45) + 'px')
+        }
     }
 
     const mouseleave = (d) => {
@@ -113,7 +122,7 @@ function drawBarChart(data, regions, category) {
     d3.selectAll('.bar')
         .on('click', d => {
             selectedRegion = d.value.id
-            drawCharts(data, d.value.id.replace(/^0+/, ''), category)
+            drawCharts(data, d.value.id.replace(/^0+/, ''), category, regions)
         })
         .on('mouseover', mouseover)
         .on('mouseout', mouseout)
