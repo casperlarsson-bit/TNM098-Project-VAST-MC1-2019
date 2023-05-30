@@ -35,6 +35,10 @@ body {
     position: absolute;
 }
 
+#control-panel h3 {
+    text-align: center;
+}
+
 #map-canvas {
     margin-right: 10px;
 }
@@ -74,4 +78,11 @@ body {
     text-align: center;
     margin-top: 0;
     font-family: Arial, Helvetica, sans-serif;
+}
+
+#select-category {
+    width: 95%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

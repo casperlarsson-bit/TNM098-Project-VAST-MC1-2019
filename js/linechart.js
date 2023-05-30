@@ -177,7 +177,7 @@ function drawConfidenceInterval(yPosition, data) {
 
 function drawCharts(data, regionID, category, regions) {
   if (regionID == null) return
-  document.getElementById('linechart-heading').innerText = 'Linechart for ' + regions.features[regionID - 1].properties.name
+  document.getElementById('linechart-heading').innerText = 'Line chart for ' + regions.features[regionID - 1].properties.name
   svgChart.selectAll('*').remove()
   data = data.sort((a, b) => d3.ascending(a.time, b.time))
   const filteredData = data.filter(d => d.location === regionID)
