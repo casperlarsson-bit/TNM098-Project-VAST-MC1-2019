@@ -50,42 +50,42 @@ function drawAxes(data, spacing) {
 
   // label 1
   legend.append('rect')
-    .attr('x', -15)
+    .attr('x', -25)
     .attr('y', -45)
     .attr('width', 10)
     .attr('height', 10)
     .attr('fill', 'steelblue')
 
   legend.append('text')
-    .attr('x', 0)
+    .attr('x', -10)
     .attr('y', -40)
     .attr('dy', '0.35em')
     .text('Reports')
 
   // label 2
   legend.append('rect')
-    .attr('x', -15)
+    .attr('x', -25)
     .attr('y', -25)
     .attr('width', 10)
     .attr('height', 10)
     .attr('fill', 'red')
 
   legend.append('text')
-    .attr('x', 0)
+    .attr('x', -10)
     .attr('y', -20)
     .attr('dy', '0.35em')
     .text('Moving avg')
 
   // label 3
   legend.append('rect')
-    .attr('x', -15)
+    .attr('x', -25)
     .attr('y', -5)
     .attr('width', 10)
     .attr('height', 10)
     .attr('fill', 'lightgray')
 
   legend.append('text')
-    .attr('x', 0)
+    .attr('x', -10)
     .attr('y', 0)
     .attr('dy', '0.35em')
     .text('95% CI')
