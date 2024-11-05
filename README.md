@@ -20,6 +20,18 @@ Lastly, a histogram is displayed under the map with the number of reports vs tim
 
 ![image](images/Overview.png)
 
+## Folder structure
+
+```
+├───css                 # Styling
+├───data                # Data for reports (.csv), and map images
+├───data description    # Description from VAST
+├───images              # Example images of the tool
+├───js                  # Main JavaScript code
+├───index.html
+└───README.md
+```
+
 ## Setup instructions
 
 Proposed tool is created with [D3.js](https://d3js.org/) which requires a webserver to run. Setup is for live server in VSCode. Any other server method will work.
